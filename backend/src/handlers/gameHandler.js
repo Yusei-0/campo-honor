@@ -20,6 +20,22 @@ module.exports = (io, socket) => {
     });
   };
 
+  const switchTurn = (game) => {
+    console.log("[TURN SWITCH] Before:", game.turn);
+    for (let r = 0; r < game.board.length; r++) {
+      for (let c = 0; c < game.board[r].length; c++) {
+        const cell = game.board[r][c];
+        if (cell && cell.type === "unit" && cell.owner === game.turn) {
+          cell.hasMoved = false;
+          cell.hasAttacked = false;
+        }
+      }
+    }
+    game.turn =
+      game.turn === game.player1.id ? game.player2.id : game.player1.id;
+    console.log("[TURN SWITCH] After:", game.turn);
+  };
+
   socket.on("summon_unit", ({ gameId, cardIndex, target }) => {
     const game = activeGames[gameId];
     if (!game) return;
@@ -28,28 +44,23 @@ module.exports = (io, socket) => {
     const isPlayer1 = socket.id === game.player1.id;
     const player = isPlayer1 ? game.player1 : game.player2;
 
-    // Validation
-    if (game.turn !== socket.id) return; // Not your turn
-    if (cardIndex < 0 || cardIndex >= player.hand.length) return; // Invalid card
+    if (game.turn !== socket.id) return;
+    if (cardIndex < 0 || cardIndex >= player.hand.length) return;
 
-    // Validate spawn zone
     const validRow = isPlayer1 ? SPAWN_ZONES.player1 : SPAWN_ZONES.player2;
     if (target.r !== validRow) return;
-    if (target.c < 0 || target.c >= game.board[0].length) return; // Out of bounds
-    if (game.board[target.r][target.c] !== null) return; // Occupied
+    if (target.c < 0 || target.c >= game.board[0].length) return;
+    if (game.board[target.r][target.c] !== null) return;
 
     const cardId = player.hand[cardIndex];
-
-    // Load real card stats
     const cardData = game.cardsData.find((c) => c.id === cardId);
-    if (!cardData) return; // Card not found
+    if (!cardData) return;
 
     const cost = cardData.cost;
     if (player.energy < cost) return;
 
-    // Execute Summon
     player.energy -= cost;
-    player.hand.splice(cardIndex, 1); // Remove card
+    player.hand.splice(cardIndex, 1);
 
     game.board[target.r][target.c] = {
       type: "unit",
@@ -66,6 +77,8 @@ module.exports = (io, socket) => {
       hasAttacked: false,
     };
 
+    console.log("[SUMMON] Unit summoned, switching turn");
+    switchTurn(game);
     emitGameUpdate(game);
   });
 
@@ -73,23 +86,22 @@ module.exports = (io, socket) => {
     const game = activeGames[gameId];
     if (!game) return;
 
-    // Validation
     if (game.turn !== socket.id) return;
     const unit = game.board[from.r][from.c];
     if (!unit || unit.owner !== socket.id) return;
-    if (unit.type !== "unit") return; // Can't move towers
-    if (unit.hasMoved) return; // Already moved this turn
-    if (game.board[to.r][to.c] !== null) return; // Occupied
+    if (unit.type !== "unit") return;
+    if (unit.hasMoved) return;
+    if (game.board[to.r][to.c] !== null) return;
 
-    // Distance Check (Manhattan <= unit.speed)
     const dist = Math.abs(from.r - to.r) + Math.abs(from.c - to.c);
     if (dist > unit.speed) return;
 
-    // Execute Move
     unit.hasMoved = true;
     game.board[to.r][to.c] = unit;
     game.board[from.r][from.c] = null;
 
+    console.log("[MOVE] Unit moved, switching turn");
+    switchTurn(game);
     emitGameUpdate(game);
   });
 
@@ -97,32 +109,26 @@ module.exports = (io, socket) => {
     const game = activeGames[gameId];
     if (!game) return;
 
-    // Validation
     if (game.turn !== socket.id) return;
     const attacker = game.board[from.r][from.c];
     if (!attacker || attacker.owner !== socket.id) return;
     if (attacker.type !== "unit") return;
-    if (attacker.hasAttacked) return; // Already attacked this turn
+    if (attacker.hasAttacked) return;
 
     const target = game.board[to.r][to.c];
-    if (!target || target.owner === socket.id) return; // No target or friendly fire
+    if (!target || target.owner === socket.id) return;
 
-    // Range Check (Manhattan distance)
     const dist = Math.abs(from.r - to.r) + Math.abs(from.c - to.c);
     if (dist > attacker.range) return;
 
-    // Calculate Damage
     const damage = Math.max(1, attacker.attack - (target.defense || 0));
     target.hp -= damage;
 
-    // Mark as attacked
     attacker.hasAttacked = true;
 
-    // Remove if dead
     if (target.hp <= 0) {
       game.board[to.r][to.c] = null;
 
-      // Check for victory (tower destroyed)
       if (target.type === "tower") {
         const winner = socket.id;
         const loser =
@@ -137,37 +143,23 @@ module.exports = (io, socket) => {
           reason: "Tu torre fue destruida",
         });
 
-        // Clean up game
         delete activeGames[gameId];
         return;
       }
     }
 
+    console.log("[ATTACK] Attack completed, switching turn");
+    switchTurn(game);
     emitGameUpdate(game);
   });
 
   socket.on("end_turn", ({ gameId }) => {
     const game = activeGames[gameId];
     if (!game) return;
-
-    // Validation
     if (game.turn !== socket.id) return;
 
-    // Reset unit states for current player
-    for (let r = 0; r < game.board.length; r++) {
-      for (let c = 0; c < game.board[r].length; c++) {
-        const cell = game.board[r][c];
-        if (cell && cell.type === "unit" && cell.owner === socket.id) {
-          cell.hasMoved = false;
-          cell.hasAttacked = false;
-        }
-      }
-    }
-
-    // Switch turn
-    game.turn =
-      game.turn === game.player1.id ? game.player2.id : game.player1.id;
-
+    console.log("[END_TURN] Manual turn end");
+    switchTurn(game);
     emitGameUpdate(game);
   });
 };

@@ -34,22 +34,36 @@ const GameScreen = ({ gameData }) => {
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [selectedUnitPos, setSelectedUnitPos] = useState(null);
   const [mode, setMode] = useState('summon');
+  const [showTurnBanner, setShowTurnBanner] = useState(false);
+  const [turnBannerText, setTurnBannerText] = useState('');
+  const [animatingCells, setAnimatingCells] = useState({});
 
   useEffect(() => {
     if (!socket) return;
     socket.on('game_update', (data) => {
+      const wasTurn = gameState.turn;
+      const isTurn = data.turn;
+      
+      // Show turn banner when turn changes
+      if (wasTurn !== isTurn) {
+        setTurnBannerText(isTurn ? '¡TU TURNO!' : 'TURNO DEL OPONENTE');
+        setShowTurnBanner(true);
+        setTimeout(() => setShowTurnBanner(false), 2000);
+      }
+      
       setGameState(data);
       setSelectedCardIndex(null);
       setSelectedUnitPos(null);
+      setMode('summon');
     });
     socket.on('game_over', (data) => {
-      alert(`Juego Terminado: ${data.result === 'victory' ? 'Victoria!' : 'Derrota'}\n${data.reason}`);
+      alert(`Juego Terminado: ${data.result === 'victory' ? '¡VICTORIA!' : 'DERROTA'}\n${data.reason}`);
     });
     return () => {
       socket.off('game_update');
       socket.off('game_over');
     };
-  }, [socket]);
+  }, [socket, gameState.turn]);
 
   const handleCardClick = (index) => {
     if (!gameState.turn) return;
@@ -67,11 +81,15 @@ const GameScreen = ({ gameData }) => {
   const handleBoardClick = (r, c) => {
     if (!gameState.turn) return;
     const clickedCell = gameState.board[r][c];
+    
     if (mode === 'summon' && selectedCardIndex !== null) {
       socket.emit('summon_unit', { gameId: gameState.gameId, cardIndex: selectedCardIndex, target: { r, c } });
+      setAnimatingCells({[`${r}-${c}`]: 'spawn'});
       playSound('click');
+      setTimeout(() => setAnimatingCells({}), 500);
       return;
     }
+    
     if (clickedCell && clickedCell.type === 'unit' && clickedCell.owner === socket.id) {
       setSelectedUnitPos({ r, c });
       setSelectedCardIndex(null);
@@ -79,22 +97,22 @@ const GameScreen = ({ gameData }) => {
       playSound('click');
       return;
     }
+    
     if (mode === 'move' && selectedUnitPos) {
       socket.emit('move_unit', { gameId: gameState.gameId, from: selectedUnitPos, to: { r, c } });
+      setAnimatingCells({[`${r}-${c}`]: 'move'});
       playSound('click');
+      setTimeout(() => setAnimatingCells({}), 400);
       return;
     }
+    
     if (mode === 'attack' && selectedUnitPos && clickedCell && clickedCell.owner !== socket.id) {
       socket.emit('attack_unit', { gameId: gameState.gameId, from: selectedUnitPos, to: { r, c } });
+      setAnimatingCells({[`${selectedUnitPos.r}-${selectedUnitPos.c}`]: 'attack', [`${r}-${c}`]: 'damage'});
       playSound('click');
+      setTimeout(() => setAnimatingCells({}), 600);
       return;
     }
-  };
-
-  const handleEndTurn = () => {
-    if (!gameState.turn) return;
-    socket.emit('end_turn', { gameId: gameState.gameId });
-    playSound('click');
   };
 
   const { hand, energy, opponent, turn, board } = gameState;
@@ -135,9 +153,18 @@ const GameScreen = ({ gameData }) => {
 
   const validCells = getValidCells();
 
+  const getHPClass = (hp, maxHp) => {
+    const percent = (hp / maxHp) * 100;
+    if (percent <= 33) return 'low-health';
+    if (percent <= 66) return 'medium-health';
+    return 'high-health';
+  };
+
   return (
     <div className="game-screen">
-      <div className="game-top-bar">
+      {showTurnBanner && <div className="turn-banner">{turnBannerText}</div>}
+      
+      <div className={`game-top-bar ${!turn ? 'your-turn' : ''}`}>
         <div className="player-info">
           <div className="avatar" style={{background: '#e74c3c'}}></div>
           <span className="player-name">{opponent}</span>
@@ -153,6 +180,8 @@ const GameScreen = ({ gameData }) => {
             const cellKey = `${r}-${c}`;
             const isValid = validCells[cellKey];
             const isSelected = selectedUnitPos && selectedUnitPos.r === r && selectedUnitPos.c === c;
+            const animClass = animatingCells[cellKey];
+            
             return (
               <div 
                 key={cellKey} 
@@ -160,15 +189,17 @@ const GameScreen = ({ gameData }) => {
                 onClick={() => handleBoardClick(r, c)}
               >
                 {cell && cell.type === 'tower' && (
-                  <div style={{width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
+                  <div className={`tower-container ${animClass === 'damage' ? 'taking-damage' : ''}`} style={{width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
                     <img src={cell.owner === socket.id ? towerGoodImg : towerBadImg} alt="tower" style={{width: '60%', height: '60%', objectFit: 'contain'}} />
                     <div className="tower-hp">{cell.hp}/{cell.maxHp}</div>
                   </div>
                 )}
                 {cell && cell.type === 'unit' && (
-                  <div className={`unit-container ${isSelected ? 'selected-attacker' : ''}`} style={{width: '80%', height: '80%', background: cell.owner === socket.id ? '#3498db' : '#e74c3c', borderRadius: '50%', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
+                  <div className={`unit-container ${isSelected ? 'selected-attacker' : ''} ${animClass === 'spawn' ? 'just-spawned' : ''} ${animClass === 'move' ? 'moving' : ''} ${animClass === 'attack' ? 'attacking' : ''} ${animClass === 'damage' ? 'taking-damage' : ''}`} style={{width: '80%', height: '80%', background: cell.owner === socket.id ? '#3498db' : '#e74c3c', borderRadius: '50%', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
                     <img src={getImageForCard(cell.id)} alt="unit" style={{width: '70%', height: '70%', objectFit: 'contain'}} />
-                    <div className="unit-hp-bar"><div className="unit-hp-fill" style={{width: `${(cell.hp / cell.maxHp) * 100}%`}}></div></div>
+                    <div className="unit-hp-bar">
+                      <div className={`unit-hp-fill ${getHPClass(cell.hp, cell.maxHp)}`} style={{width: `${(cell.hp / cell.maxHp) * 100}%`}}></div>
+                    </div>
                     <div className="unit-status">
                       {cell.hasMoved && <div className="status-icon status-moved">M</div>}
                       {cell.hasAttacked && <div className="status-icon status-attacked">A</div>}
@@ -181,14 +212,14 @@ const GameScreen = ({ gameData }) => {
         </div>
       </div>
 
-      <div className="game-bottom-bar">
+      <div className={`game-bottom-bar ${turn ? 'your-turn' : ''}`}>
         <div className="player-stats">
-          <span>Energia: {energy}/10</span>
-          <span>{turn ? "Tu Turno" : "Turno Oponente"}</span>
+          <span>⚡ Energia: {energy}/10</span>
+          <span>{turn ? "🟢 TU TURNO" : "🔴 Turno Oponente"}</span>
           {selectedUnitPos && (
             <div style={{display: 'flex', gap: '0.5rem'}}>
-              <button onClick={() => setMode('move')} style={{background: mode === 'move' ? '#3498db' : '#555', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px', color: 'white', cursor: 'pointer'}}>Mover</button>
-              <button onClick={() => setMode('attack')} style={{background: mode === 'attack' ? '#e74c3c' : '#555', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px', color: 'white', cursor: 'pointer'}}>Atacar</button>
+              <button onClick={() => setMode('move')} style={{background: mode === 'move' ? '#3498db' : '#555', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px', color: 'white', cursor: 'pointer', fontWeight: 'bold'}}>Mover</button>
+              <button onClick={() => setMode('attack')} style={{background: mode === 'attack' ? '#e74c3c' : '#555', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px', color: 'white', cursor: 'pointer', fontWeight: 'bold'}}>Atacar</button>
             </div>
           )}
         </div>
@@ -204,8 +235,6 @@ const GameScreen = ({ gameData }) => {
           })}
         </div>
       </div>
-
-      <button className="end-turn-btn" onClick={handleEndTurn} disabled={!turn}>Terminar Turno</button>
     </div>
   );
 };
