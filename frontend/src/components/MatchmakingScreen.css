@@ -1,0 +1,129 @@
+/* MatchmakingScreen.css */
+.matchmaking-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background: radial-gradient(circle at center, #1a4a6b 0%, #001d2e 100%);
+  color: var(--text-color);
+  position: relative;
+}
+
+.matchmaking-container {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 500px;
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.5s ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+.matchmaking-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 3rem;
+  color: var(--primary-color);
+  text-align: center;
+  margin: 0;
+  text-shadow: 2px 2px 0 var(--secondary-color);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.input-label {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.name-input {
+  padding: 1rem;
+  border-radius: 10px;
+  border: 2px solid var(--button-bg);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.2rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.name-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(255, 183, 3, 0.3);
+}
+
+.search-btn {
+  background: linear-gradient(135deg, var(--button-bg), #126782);
+  border: none;
+  border-radius: 15px;
+  padding: 1rem 2rem;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #0e4b5f, 0 10px 10px rgba(0,0,0,0.5);
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.search-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #0e4b5f, 0 15px 15px rgba(0,0,0,0.5);
+}
+
+.search-btn:disabled {
+  background: #555;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.status-message {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.5rem;
+  color: #fff;
+  text-align: center;
+  margin-top: 1rem;
+  animation: pulse 1.5s infinite;
+}
+
+.match-found {
+  background: rgba(46, 204, 113, 0.2);
+  border: 2px solid #2ecc71;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 100%;
+  text-align: center;
+}
+
+.match-found h3 {
+  color: #2ecc71;
+  margin: 0 0 0.5rem 0;
+  font-family: 'Luckiest Guy', cursive;
+}
+
+.match-found p {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}

@@ -60,7 +60,7 @@ const StartScreen = ({ onNavigate }) => {
       <div className="menu-options">
         <button 
           className="menu-btn" 
-          onClick={() => handleClick(() => {})} 
+          onClick={() => handleClick(() => onNavigate('matchmaking'))} 
           onMouseEnter={handleMouseEnter}
         >
           <svg className="btn-icon" viewBox="0 0 24 24">
