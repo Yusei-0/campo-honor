@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="560" viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Escudero Defensor</title>
+  <desc id="desc">Icono de un escudero medieval con escudo grande y armadura pesada; estilo limpio y legible</desc>
+
+  <defs>
+    <linearGradient id="bgGradS" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8f9fb"/>
+      <stop offset="1" stop-color="#ebedf0"/>
+    </linearGradient>
+
+    <linearGradient id="armorGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#d0d4db"/>
+      <stop offset="1" stop-color="#8f96a3"/>
+    </linearGradient>
+
+    <linearGradient id="shieldGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#5b6a78"/>
+      <stop offset="1" stop-color="#39454f"/>
+    </linearGradient>
+
+    <linearGradient id="goldTrim" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffd88a"/>
+      <stop offset="1" stop-color="#e0a24a"/>
+    </linearGradient>
+
+    <filter id="softShadowS" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <!-- Frame -->
+  <rect x="10" y="10" width="380" height="540" rx="20" fill="url(#bgGradS)" stroke="#d1d5dc" stroke-width="2"/>
+
+  <!-- Inner panel with shadow -->
+  <g filter="url(#softShadowS)">
+    <rect id="panel" x="34" y="60" width="332" height="380" rx="14" fill="#ffffff" stroke="#e1e4e8" stroke-width="1"/>
+  </g>
+
+  <!-- Decorative banner / name -->
+  <g id="banner">
+    <rect x="34" y="420" width="332" height="60" rx="8" fill="#39454f"/>
+    <text id="cardName" x="200" y="457" font-family="Inter, Arial, sans-serif" font-size="20" text-anchor="middle" fill="#fff" font-weight="700">
+      Escudero Defensor
+    </text>
+  </g>
+
+  <!-- Character group -->
+  <g id="shieldman" transform="translate(0,18)">
+    <!-- Armor body -->
+    <rect x="150" y="175" width="100" height="130" rx="14" fill="url(#armorGrad)" stroke="#6f7683" stroke-width="2"/>
+
+    <!-- Helmet -->
+    <g id="helmet" transform="translate(200,130)">
+      <ellipse cx="0" cy="0" rx="48" ry="36" fill="url(#armorGrad)" stroke="#6f7683" stroke-width="2"/>
+      <!-- visor -->
+      <rect x="-28" y="-4" width="56" height="14" rx="4" fill="#2f3540" opacity="0.18"/>
+    </g>
+
+    <!-- Shoulders -->
+    <g id="shoulders">
+      <ellipse cx="150" cy="210" rx="28" ry="20" fill="url(#armorGrad)" stroke="#6f7683" stroke-width="2"/>
+      <ellipse cx="250" cy="210" rx="28" ry="20" fill="url(#armorGrad)" stroke="#6f7683" stroke-width="2"/>
+    </g>
+
+    <!-- Big Shield -->
+    <g id="shield" transform="translate(130,205) rotate(-12)">
+      <path d="M0 -60 L 50 -40 L 50 60 L 0 80 L -50 60 L -50 -40 Z"
+            fill="url(#shieldGrad)" stroke="#2a3238" stroke-width="3" />
+      <!-- crest -->
+      <path d="M-8 -30 L 8 -30 L 0 -10 Z" fill="url(#goldTrim)"/>
+    </g>
+
+    <!-- Sword (small, sheathed) -->
+    <g id="sword" transform="translate(255,240)">
+      <rect x="0" y="0" width="10" height="60" rx="4" fill="#8f96a3" stroke="#6c727d" stroke-width="1.5"/>
+      <rect x="-6" y="50" width="22" height="6" rx="2" fill="url(#goldTrim)" />
+    </g>
+
+    <!-- Left arm -->
+    <g id="left_arm" transform="translate(150,225) rotate(-10)">
+      <rect x="-10" y="-8" width="20" height="60" rx="8" fill="#c4cad4" stroke="#8e96a5" stroke-width="1.5"/>
+    </g>
+
+    <!-- Right arm -->
+    <g id="right_arm" transform="translate(250,225) rotate(12)">
+      <rect x="-10" y="-8" width="20" height="60" rx="8" fill="#c4cad4" stroke="#8e96a5" stroke-width="1.5"/>
+    </g>
+
+    <!-- Legs -->
+    <g id="legs" transform="translate(170,310)">
+      <rect x="-6" y="0" width="28" height="46" rx="6" fill="#6f7683"/>
+      <rect x="30" y="0" width="28" height="46" rx="6" fill="#6f7683"/>
+    </g>
+
+    <!-- Ground shadow -->
+    <ellipse cx="200" cy="355" rx="78" ry="16" fill="#000" opacity="0.06"/>
+  </g>
+
+  <!-- Decorative sparks -->
+  <g id="sparks" opacity="0.6">
+    <circle cx="130" cy="145" r="3" fill="#ffd88a"/>
+    <circle cx="250" cy="150" r="3" fill="#ffd88a"/>
+    <path d="M160 150 L180 138" stroke="#ffd88a" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Stats -->
+  <g id="stats" font-family="Inter, Arial, sans-serif" font-size="20" fill="#333" font-weight="700">
+    <text x="40"  y="515" id="stat_hp">❤ 28</text>
+    <text x="140" y="515" id="stat_attack">⚔ 4</text>
+    <text x="240" y="515" id="stat_def">🛡 4</text>
+    <text x="330" y="515" id="stat_cost">⧗ 3</text>
+  </g>
+</svg>

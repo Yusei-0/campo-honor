@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="560" viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Caballero Real</title>
+  <desc id="desc">Icono de un caballero medieval con casco, escudo, espada y capa, estilo limpio y legible</desc>
+
+  <!-- Card background -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8f6ef"/>
+      <stop offset="1" stop-color="#e6e2d8"/>
+    </linearGradient>
+
+    <linearGradient id="metalGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f3f6f9"/>
+      <stop offset="1" stop-color="#bfc7cf"/>
+    </linearGradient>
+
+    <linearGradient id="goldGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffd88a"/>
+      <stop offset="1" stop-color="#e5a62f"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Frame -->
+  <rect x="10" y="10" width="380" height="540" rx="20" fill="url(#bgGrad)" stroke="#c9c1ad" stroke-width="2" />
+
+  <!-- Inner panel with shadow -->
+  <g filter="url(#softShadow)">
+    <rect id="panel" x="34" y="60" width="332" height="380" rx="14" fill="#ffffff" stroke="#e0dcd0" stroke-width="1"/>
+  </g>
+
+  <!-- Decorative banner / name area -->
+  <g id="banner">
+    <rect x="34" y="420" width="332" height="60" rx="8" fill="#2e4b3b"/>
+    <text id="cardName" x="200" y="457" font-family="Inter, Arial, sans-serif" font-size="20" text-anchor="middle" fill="#fff" font-weight="700">Caballero Real</text>
+  </g>
+
+  <!-- Knight group -->
+  <g id="knight" transform="translate(0,18)">
+    <!-- Cape -->
+    <path id="cape" d="M120 180 C 115 260, 140 340, 200 340 C 260 340, 285 260, 280 180 C 240 160, 160 160, 120 180 Z"
+          fill="#7b2f2f" opacity="0.95"/>
+
+    <!-- Body -->
+    <rect x="150" y="160" width="100" height="120" rx="12" fill="url(#metalGrad)" stroke="#9aa4ab" stroke-width="2"/>
+
+    <!-- Helmet -->
+    <g id="helmet" transform="translate(190,90)">
+      <ellipse cx="0" cy="0" rx="42" ry="30" fill="url(#metalGrad)" stroke="#9aa4ab" stroke-width="2"/>
+      <rect x="-34" y="-4" width="68" height="20" rx="10" fill="#2f3b43"/>
+      <path d="M-28 -18 C -10 -36, 10 -36, 28 -18 L 28 -10 C 10 -30, -10 -30, -28 -10 Z" fill="url(#goldGrad)" stroke="#b8862b" stroke-width="1"/>
+    </g>
+
+    <!-- Shield -->
+    <g id="shield" transform="translate(108,210) rotate(-8)">
+      <path d="M0 0 L 50 -10 L 50 70 C 30 90, -30 90, -50 70 L -50 -10 Z" fill="#2b6b5b" stroke="#13382f" stroke-width="3"/>
+      <rect x="-18" y="6" width="36" height="70" rx="6" fill="url(#goldGrad)" opacity="0.12"/>
+      <circle cx="0" cy="18" r="10" fill="url(#goldGrad)" stroke="#b8862b" stroke-width="2"/>
+    </g>
+
+    <!-- Sword -->
+    <g id="sword" transform="translate(292,170) rotate(12)">
+      <rect x="-6" y="-70" width="12" height="120" rx="3" fill="url(#metalGrad)" stroke="#9aa4ab" stroke-width="1"/>
+      <path d="M-6 -70 L 6 -70 L 0 -82 Z" fill="#f3f6f9" stroke="#9aa4ab" stroke-width="1"/>
+      <rect x="-18" y="50" width="36" height="10" rx="3" fill="#6b4b2b" stroke="#3e2b18" stroke-width="1"/>
+      <rect x="-8" y="60" width="16" height="12" rx="2" fill="#caa77a" stroke="#8f6b48" stroke-width="1"/>
+    </g>
+
+    <!-- Emblem -->
+    <g id="emblem" transform="translate(200,220)">
+      <circle cx="0" cy="-40" r="22" fill="#ffffff" opacity="0.08"/>
+      <path d="M-8 -48 L 0 -28 L 8 -48 Z" fill="url(#goldGrad)"/>
+    </g>
+
+    <!-- Legs -->
+    <g id="legs" transform="translate(170,270)">
+      <rect x="-6" y="0" width="22" height="40" rx="6" fill="#4b3b34"/>
+      <rect x="18" y="0" width="22" height="40" rx="6" fill="#4b3b34"/>
+    </g>
+
+    <!-- Small shield emblem -->
+    <g id="shieldEmblem" transform="translate(120,200)">
+      <path d="M0 -8 L 6 4 L -6 4 Z" fill="#ffd88a" opacity="0.95"/>
+    </g>
+
+    <!-- Ground -->
+    <ellipse cx="200" cy="330" rx="80" ry="18" fill="#000" opacity="0.06"/>
+  </g>
+
+  <!-- Stats (bigger & spaced) -->
+  <g id="stats" font-family="Inter, Arial, sans-serif" font-size="20" fill="#333" font-weight="700">
+    <text x="40"  y="515" id="stat_hp">❤ 22</text>
+    <text x="140" y="515" id="stat_attack">⚔ 6</text>
+    <text x="240" y="515" id="stat_def">🛡 3</text>
+    <text x="330" y="515" id="stat_cost">⧗ 3</text>
+  </g>
+
+</svg>

@@ -1,35 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import StartScreen from './components/StartScreen';
+import RulesScreen from './components/RulesScreen';
+import CardsScreen from './components/CardsScreen';
+import SettingsScreen from './components/SettingsScreen';
+import { SoundProvider } from './context/SoundContext';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentScreen, setCurrentScreen] = useState('start'); // 'start', 'rules', 'cards', 'settings'
+
+  const navigateTo = (screen) => {
+    setCurrentScreen(screen);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <SoundProvider>
+      {currentScreen === 'start' && <StartScreen onNavigate={navigateTo} />}
+      {currentScreen === 'rules' && <RulesScreen onBack={() => navigateTo('start')} />}
+      {currentScreen === 'cards' && <CardsScreen onBack={() => navigateTo('start')} />}
+      {currentScreen === 'settings' && <SettingsScreen onBack={() => navigateTo('start')} />}
+    </SoundProvider>
+  );
 }
 
-export default App
+export default App;

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="560" viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Mago Arcano</title>
+  <desc id="desc">Icono de un mago arcano con bastón, capa y glifo mágico; estilo limpio y legible</desc>
+
+  <defs>
+    <linearGradient id="bgGradM" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#f7f6ff"/>
+      <stop offset="1" stop-color="#eceaff"/>
+    </linearGradient>
+
+    <linearGradient id="robeGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#6b5cc6"/>
+      <stop offset="1" stop-color="#3d2b63"/>
+    </linearGradient>
+
+    <linearGradient id="staffGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#cfa471"/>
+      <stop offset="1" stop-color="#8f5a2f"/>
+    </linearGradient>
+
+    <linearGradient id="orbGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffd88a"/>
+      <stop offset="1" stop-color="#ffb14d"/>
+    </linearGradient>
+
+    <filter id="softShadowM" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <!-- Frame -->
+  <rect x="10" y="10" width="380" height="540" rx="20" fill="url(#bgGradM)" stroke="#d6cfe8" stroke-width="2"/>
+
+  <!-- Inner panel with shadow -->
+  <g filter="url(#softShadowM)">
+    <rect id="panel" x="34" y="60" width="332" height="380" rx="14" fill="#ffffff" stroke="#eae6fb" stroke-width="1"/>
+  </g>
+
+  <!-- Decorative banner / name area -->
+  <g id="banner">
+    <rect x="34" y="420" width="332" height="60" rx="8" fill="#3b2b63"/>
+    <text id="cardName" x="200" y="457" font-family="Inter, Arial, sans-serif" font-size="20" text-anchor="middle" fill="#fff" font-weight="700">Mago Arcano</text>
+  </g>
+
+  <!-- Mage group -->
+  <g id="mage" transform="translate(0,18)">
+    <!-- Robe (back) -->
+    <path id="robe_back" d="M110 170 C 110 260, 140 330, 200 330 C 260 330, 290 260, 290 170 C 250 150, 150 150, 110 170 Z"
+          fill="url(#robeGrad)" opacity="0.95"/>
+
+    <!-- Torso / robe front -->
+    <rect x="150" y="160" width="100" height="140" rx="14" fill="url(#robeGrad)" stroke="#3a2b56" stroke-width="2"/>
+
+    <!-- Hood / collar -->
+    <g id="hood" transform="translate(200,100)">
+      <path d="M-44 -8 C -28 -50, 28 -50, 44 -8 C 44 12, -44 12, -44 -8 Z" fill="#3b2b63" stroke="#2a1f46" stroke-width="2"/>
+      <ellipse cx="0" cy="16" rx="26" ry="18" fill="#fdf8f8" stroke="#e9e0d8" stroke-width="1"/>
+      <!-- face shadow -->
+      <rect x="-22" y="6" width="44" height="10" rx="5" fill="#2f3540" opacity="0.12"/>
+    </g>
+
+    <!-- Staff (right) -->
+    <g id="staff" transform="translate(288,150) rotate(10)">
+      <rect x="-8" y="-80" width="16" height="160" rx="8" fill="url(#staffGrad)" stroke="#7a4f2b" stroke-width="2"/>
+      <circle cx="0" cy="-88" r="18" fill="url(#orbGrad)" stroke="#e0a24a" stroke-width="2"/>
+      <!-- subtle glow lines -->
+      <g id="orb_glow" opacity="0.75">
+        <path d="M0 -106 L 0 -80" stroke="#fff2d9" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        <path d="M-12 -98 L 6 -86" stroke="#fff2d9" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
+      </g>
+    </g>
+
+    <!-- Magic glyph in front (floating) -->
+    <g id="glyph" transform="translate(200,185)">
+      <circle cx="0" cy="0" r="34" fill="#ffffff" opacity="0.06"/>
+      <path d="M-6 -18 L 6 -6 L -6 6 L 6 18" stroke="#ffd88a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="0" cy="0" r="6" fill="url(#orbGrad)" stroke="#e0a24a" stroke-width="1.2"/>
+    </g>
+
+    <!-- Left hand (casting) -->
+    <g id="left_hand" transform="translate(165,200) rotate(-6)">
+      <rect x="-8" y="-6" width="18" height="40" rx="6" fill="#fbeedc"/>
+      <!-- small spark -->
+      <circle cx="6" cy="2" r="4" fill="#ffd88a" opacity="0.95"/>
+    </g>
+
+    <!-- Right hand (holding robe) -->
+    <g id="right_hand" transform="translate(235,210) rotate(6)">
+      <rect x="-8" y="-6" width="18" height="40" rx="6" fill="#fbeedc"/>
+    </g>
+
+    <!-- Emblem on chest -->
+    <g id="emblem" transform="translate(200,230)">
+      <circle cx="0" cy="-42" r="18" fill="#ffffff" opacity="0.06"/>
+      <path d="M-6 -48 L 0 -28 L 6 -48 Z" fill="#ffd88a"/>
+    </g>
+
+    <!-- Legs (subtle, under robe) -->
+    <g id="legs" transform="translate(170,300)">
+      <rect x="-6" y="0" width="22" height="34" rx="6" fill="#3b2b4f"/>
+      <rect x="18" y="0" width="22" height="34" rx="6" fill="#3b2b4f"/>
+    </g>
+
+    <!-- Ground base shadow -->
+    <ellipse cx="200" cy="350" rx="78" ry="16" fill="#000" opacity="0.06"/>
+  </g>
+
+  <!-- Decorative runes / sparkles -->
+  <g id="runes" opacity="0.9">
+    <circle cx="150" cy="140" r="3" fill="#ffd88a" opacity="0.9"/>
+    <circle cx="230" cy="120" r="2.5" fill="#ffd88a" opacity="0.85"/>
+    <path d="M170 150 L186 136" stroke="#fff2d9" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+  </g>
+
+  <!-- Stats (bigger & spaced) -->
+  <g id="stats" font-family="Inter, Arial, sans-serif" font-size="20" fill="#333" font-weight="700">
+    <text x="40"  y="515" id="stat_hp">❤ 14</text>
+    <text x="140" y="515" id="stat_attack">⚔ 6</text>
+    <text x="240" y="515" id="stat_def">🛡 1</text>
+    <text x="330" y="515" id="stat_cost">⧗ 4</text>
+  </g>
+
+</svg>
