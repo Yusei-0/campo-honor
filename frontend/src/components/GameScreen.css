@@ -1,0 +1,153 @@
+/* GameScreen.css */
+.game-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background: radial-gradient(circle at center, #1a4a6b 0%, #001d2e 100%);
+  color: var(--text-color);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Top Bar: Opponent Info */
+.game-top-bar {
+  height: 80px;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  background: #ccc;
+  border-radius: 50%;
+  border: 2px solid var(--primary-color);
+}
+
+.player-name {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.opponent-hand {
+  display: flex;
+  gap: 5px;
+}
+
+.card-back-mini {
+  width: 40px;
+  height: 60px;
+  background: linear-gradient(135deg, #0f2027, #2c5364);
+  border: 1px solid #c0a062;
+  border-radius: 4px;
+}
+
+/* Game Board */
+.game-board-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px;
+  padding: 1rem;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  width: 600px;
+  height: 600px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 4px solid #444;
+  transform: rotateX(20deg); /* 3D effect */
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.board-cell {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.board-cell:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Bottom Bar: Player Hand & Info */
+.game-bottom-bar {
+  height: 220px;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border-top: 2px solid var(--primary-color);
+}
+
+.player-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-family: 'Fredoka', sans-serif;
+  color: #ffb703;
+  font-size: 1.2rem;
+}
+
+.player-hand {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  height: 100%;
+  align-items: flex-end;
+}
+
+.hand-card {
+  width: 100px;
+  height: 140px;
+  background: #0d2b3e;
+  border: 2px solid #c0a062;
+  border-radius: 8px;
+  position: relative;
+  transition: transform 0.2s;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.hand-card:hover {
+  transform: translateY(-20px) scale(1.1);
+  z-index: 10;
+}
+
+.hand-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hand-card-cost {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: #d62828;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 0.8rem;
+  border: 1px solid white;
+}

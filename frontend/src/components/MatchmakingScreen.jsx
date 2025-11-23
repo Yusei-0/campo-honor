@@ -3,12 +3,13 @@ import './MatchmakingScreen.css';
 import { useSocket } from '../context/SocketContext';
 import { useSound } from '../context/SoundContext';
 
-const MatchmakingScreen = ({ onBack }) => {
+const MatchmakingScreen = ({ onBack, onNavigate }) => {
   const socket = useSocket();
   const { playSound } = useSound();
   const [playerName, setPlayerName] = useState('');
-  const [status, setStatus] = useState('idle'); // 'idle', 'searching', 'matched'
+  const [status, setStatus] = useState('idle'); // 'idle', 'searching', 'matched', 'waiting_opponent'
   const [opponent, setOpponent] = useState(null);
+  const [matchId, setMatchId] = useState(null);
 
   useEffect(() => {
     if (!socket) return;
@@ -16,13 +17,21 @@ const MatchmakingScreen = ({ onBack }) => {
     socket.on('match_found', (data) => {
       setStatus('matched');
       setOpponent(data.opponent);
+      setMatchId(data.matchId);
       playSound('click'); // Play sound on match
+    });
+
+    socket.on('game_start', (data) => {
+      console.log('Game starting!', data);
+      // Navigate to game screen with game data
+      onNavigate('game', data);
     });
 
     return () => {
       socket.off('match_found');
+      socket.off('game_start');
     };
-  }, [socket, playSound]);
+  }, [socket, playSound, onNavigate]);
 
   const handleSearch = () => {
     if (!playerName.trim() || !socket) return;
@@ -30,6 +39,21 @@ const MatchmakingScreen = ({ onBack }) => {
     setStatus('searching');
     playSound('click');
     socket.emit('find_match', playerName);
+  };
+
+  const handleLeave = () => {
+    if (socket) {
+        socket.emit('leave_queue');
+    }
+    playSound('click');
+    onBack();
+  };
+
+  const handleConfirm = () => {
+    if (!socket || !matchId) return;
+    setStatus('waiting_opponent');
+    playSound('click');
+    socket.emit('confirm_match', matchId);
   };
 
   return (
@@ -70,13 +94,27 @@ const MatchmakingScreen = ({ onBack }) => {
           <div className="match-found">
             <h3>¡Partida Encontrada!</h3>
             <p>Tu oponente es: <strong>{opponent}</strong></p>
+            <button 
+              className="search-btn" 
+              onClick={handleConfirm}
+              style={{marginTop: '1rem', background: 'linear-gradient(135deg, #2ecc71, #27ae60)'}}
+              onMouseEnter={() => playSound('hover')}
+            >
+              Confirmar Batalla
+            </button>
+          </div>
+        )}
+
+        {status === 'waiting_opponent' && (
+          <div className="status-message">
+            ⏳ Esperando confirmación del oponente...
           </div>
         )}
       </div>
 
       <button 
         className="back-btn" 
-        onClick={() => { playSound('click'); onBack(); }} 
+        onClick={handleLeave} 
         onMouseEnter={() => playSound('hover')}
         title="Volver al Menú"
       >
