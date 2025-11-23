@@ -1,0 +1,16 @@
+{
+  "name": "medieval-strategy-game",
+  "version": "1.0.0",
+  "description": "Medieval Strategy Board Game Monorepo",
+  "scripts": {
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}
