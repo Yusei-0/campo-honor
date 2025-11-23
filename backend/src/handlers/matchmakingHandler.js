@@ -82,21 +82,34 @@ module.exports = (io, socket) => {
       const hand1 = deck1.slice(0, 5);
       const hand2 = deck2.slice(0, 5);
 
-      // Initialize Board (10x10)
-      const board = Array(10)
+      // Initialize Board (7x8)
+      const {
+        BOARD_WIDTH,
+        BOARD_HEIGHT,
+        TOWER_HP,
+        TOWER_POSITIONS,
+        SPAWN_ZONES,
+      } = require("../constants/game");
+      const cardsData = require("../../../card.json");
+
+      const board = Array(BOARD_HEIGHT)
         .fill(null)
-        .map(() => Array(10).fill(null));
+        .map(() => Array(BOARD_WIDTH).fill(null));
 
-      // Place Towers
-      // Player 1 (Bottom, Row 9)
-      board[9][1] = { type: "tower", owner: match.player1.id, hp: 3000 };
-      board[9][5] = { type: "tower", owner: match.player1.id, hp: 4000 }; // Main Tower
-      board[9][8] = { type: "tower", owner: match.player1.id, hp: 3000 };
+      // Place Single Tower for each player
+      board[TOWER_POSITIONS.player1.r][TOWER_POSITIONS.player1.c] = {
+        type: "tower",
+        owner: match.player1.id,
+        hp: TOWER_HP,
+        maxHp: TOWER_HP,
+      };
 
-      // Player 2 (Top, Row 0)
-      board[0][1] = { type: "tower", owner: match.player2.id, hp: 3000 };
-      board[0][5] = { type: "tower", owner: match.player2.id, hp: 4000 }; // Main Tower
-      board[0][8] = { type: "tower", owner: match.player2.id, hp: 3000 };
+      board[TOWER_POSITIONS.player2.r][TOWER_POSITIONS.player2.c] = {
+        type: "tower",
+        owner: match.player2.id,
+        hp: TOWER_HP,
+        maxHp: TOWER_HP,
+      };
 
       activeGames[gameId] = {
         id: gameId,
@@ -114,6 +127,7 @@ module.exports = (io, socket) => {
         },
         board: board,
         turn: match.player1.id, // Player 1 starts
+        cardsData: cardsData, // Store card data for reference
       };
 
       const emitGameUpdate = (game) => {
