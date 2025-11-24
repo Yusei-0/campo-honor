@@ -567,10 +567,6 @@
 
 /* Scrollbar for Side Panel */
 .game-side-panel {
-  overflow-y: auto;
-}
-
-.game-side-panel::-webkit-scrollbar {
   width: 8px;
 }
 

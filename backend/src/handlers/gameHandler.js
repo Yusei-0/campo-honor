@@ -278,8 +278,40 @@ module.exports = (io, socket) => {
     game.board[to.r][to.c] = unit;
     game.board[from.r][from.c] = null;
 
-    console.log("[MOVE] Unit moved, turn continues");
-    // switchTurn(game); // Removed auto turn switch for move
+    if (unit.isRanged) {
+      console.log("[MOVE] Ranged unit moved, turn ends");
+      switchTurn(game);
+    } else {
+      // Melee unit - Check for targets
+      let hasTargets = false;
+      const range = unit.range;
+
+      for (let r = 0; r < game.board.length; r++) {
+        for (let c = 0; c < game.board[r].length; c++) {
+          const target = game.board[r][c];
+          if (target && target.owner !== socket.id) {
+            const dist = Math.abs(to.r - r) + Math.abs(to.c - c);
+            if (dist <= range) {
+              hasTargets = true;
+              break;
+            }
+          }
+        }
+        if (hasTargets) break;
+      }
+
+      if (hasTargets) {
+        console.log("[MOVE] Melee unit moved, targets found, prompting");
+        socket.emit("action_prompt", {
+          message: "Enemigo en rango. ¿Deseas atacar?",
+          options: ["Atacar", "Terminar Turno"],
+        });
+      } else {
+        console.log("[MOVE] Melee unit moved, no targets, turn ends");
+        switchTurn(game);
+      }
+    }
+
     emitGameUpdate(game);
   });
 

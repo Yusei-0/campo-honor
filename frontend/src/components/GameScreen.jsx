@@ -47,60 +47,71 @@ const GameScreen = ({ gameData }) => {
   const [attackCinematic, setAttackCinematic] = useState(null);
   const [gameOverData, setGameOverData] = useState(null);
   const [destroyedCell, setDestroyedCell] = useState(null);
+  const [prompt, setPrompt] = useState(null);
 
   useEffect(() => {
     if (!socket) return;
-    
-    socket.on('attack_result', (data) => {
-      setAttackCinematic(data);
-      playSound('attack'); 
-      
-      if (data.isKill) {
-        setTimeout(() => {
-          setDestroyedCell(data.to); // Logical coords
-          playSound('destroy');
-        }, 1500); // Trigger destruction mid-cinematic or right after hit
-      }
-
-      setTimeout(() => {
-        setAttackCinematic(null);
-        setDestroyedCell(null);
-      }, 3000); // Cinematic + little buffer
-    });
 
     socket.on('game_update', (data) => {
       const wasTurn = gameState.turn;
       const isTurn = data.turn;
       
       setGameState(data);
-      
-      // Delay turn banner if cinematic might be playing
-      const delay = attackCinematic ? 3000 : 0;
+      setPrompt(null); 
       
       if (wasTurn !== isTurn) {
         setTimeout(() => {
             setTurnBannerText(isTurn ? '¡TU TURNO!' : 'TURNO DEL OPONENTE');
             setShowTurnBanner(true);
             setTimeout(() => setShowTurnBanner(false), 2000);
-        }, delay);
+        }, attackCinematic ? 3000 : 0);
       }
       
-      // Only reset selection if it was a move/summon action, not just an update
       if (!attackCinematic) {
           setSelectedCardIndex(null);
           setSelectedUnitPos(null);
           setMode('summon');
       }
     });
+
+    socket.on('game_start', (data) => {
+        setGameState(data);
+        setPrompt(null);
+    });
+
+    socket.on('action_prompt', (data) => {
+        setPrompt(data);
+    });
+
+    socket.on('attack_result', (data) => {
+      setAttackCinematic(data);
+      playSound('attack'); 
+      
+      if (data.isKill) {
+        setTimeout(() => {
+          setDestroyedCell(data.to); 
+          playSound('destroy');
+        }, 1500); 
+      }
+
+      setTimeout(() => {
+        setAttackCinematic(null);
+        setDestroyedCell(null);
+      }, 3000); 
+    });
+
     socket.on('game_over', (data) => {
       setGameOverData(data);
     });
+
     return () => {
       socket.off('game_update');
-      socket.off('game_over');
+      socket.off('game_start');
+      socket.off('action_prompt');
       socket.off('attack_result');
+      socket.off('game_over');
     };
-  }, [socket, gameState.turn, attackCinematic]);
+  }, [socket, gameState.turn, attackCinematic, playSound]);
 
   const handleCardClick = (index) => {
     if (!gameState.turn) return;
@@ -293,8 +304,29 @@ const GameScreen = ({ gameData }) => {
       );
   };
 
+  const handlePromptResponse = (response) => {
+      if (response === "Atacar") {
+          setPrompt(null);
+          // User stays in turn to attack
+      } else {
+          setPrompt(null);
+          socket.emit("end_turn", { gameId: gameState.gameId });
+      }
+  };
+
   return (
     <div className="game-screen-layout">
+      {prompt && (
+        <div className="prompt-overlay">
+            <div className="prompt-box">
+                <p>{prompt.message}</p>
+                <div className="prompt-buttons">
+                    <button onClick={() => handlePromptResponse("Atacar")}>⚔️ Atacar</button>
+                    <button onClick={() => handlePromptResponse("Terminar Turno")}>🛑 Terminar Turno</button>
+                </div>
+            </div>
+        </div>
+      )}
       {gameOverData && (
         <div className="game-over-overlay">
           <div className="game-over-content">
