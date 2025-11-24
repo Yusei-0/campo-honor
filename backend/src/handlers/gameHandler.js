@@ -93,8 +93,53 @@ module.exports = (io, socket) => {
     if (unit.hasMoved) return;
     if (game.board[to.r][to.c] !== null) return;
 
-    const dist = Math.abs(from.r - to.r) + Math.abs(from.c - to.c);
-    if (dist > unit.speed) return;
+    // BFS Pathfinding to check for obstacles
+    const queue = [{ r: from.r, c: from.c, dist: 0 }];
+    const visited = new Set([`${from.r}-${from.c}`]);
+    let pathFound = false;
+
+    while (queue.length > 0) {
+      const { r, c, dist } = queue.shift();
+
+      if (r === to.r && c === to.c) {
+        pathFound = true;
+        break;
+      }
+
+      if (dist >= unit.speed) continue;
+
+      const directions = [
+        { r: -1, c: 0 },
+        { r: 1, c: 0 },
+        { r: 0, c: -1 },
+        { r: 0, c: 1 },
+      ];
+
+      for (const dir of directions) {
+        const newR = r + dir.r;
+        const newC = c + dir.c;
+        const key = `${newR}-${newC}`;
+
+        if (
+          newR >= 0 &&
+          newR < game.board.length &&
+          newC >= 0 &&
+          newC < game.board[0].length &&
+          !visited.has(key)
+        ) {
+          // Check if cell is blocked (unless it's the destination)
+          const isDestination = newR === to.r && newC === to.c;
+          const cellContent = game.board[newR][newC];
+
+          if (!cellContent || isDestination) {
+            visited.add(key);
+            queue.push({ r: newR, c: newC, dist: dist + 1 });
+          }
+        }
+      }
+    }
+
+    if (!pathFound) return;
 
     unit.hasMoved = true;
     game.board[to.r][to.c] = unit;

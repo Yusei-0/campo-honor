@@ -45,6 +45,7 @@ const GameScreen = ({ gameData }) => {
   const [turnBannerText, setTurnBannerText] = useState('');
   const [animatingCells, setAnimatingCells] = useState({});
   const [attackCinematic, setAttackCinematic] = useState(null);
+  const [gameOverData, setGameOverData] = useState(null);
 
   useEffect(() => {
     if (!socket) return;
@@ -73,7 +74,7 @@ const GameScreen = ({ gameData }) => {
       setMode('summon');
     });
     socket.on('game_over', (data) => {
-      alert(`Juego Terminado: ${data.result === 'victory' ? '¡VICTORIA!' : 'DERROTA'}\n${data.reason}`);
+      setGameOverData(data);
     });
     return () => {
       socket.off('game_update');
@@ -193,6 +194,11 @@ const GameScreen = ({ gameData }) => {
     playSound('click');
   };
 
+  const handleBoardClickVisual = (visualR, visualC) => {
+      const { r, c } = toLogical(visualR, visualC);
+      handleBoardClick(r, c);
+  };
+
   const renderCell = (visualR, visualC) => {
       const { r, c } = toLogical(visualR, visualC);
       const cell = board[r][c];
@@ -208,6 +214,10 @@ const GameScreen = ({ gameData }) => {
           className={`board-cell ${isValid === 'spawn' ? 'valid-spawn' : ''} ${isValid === 'move' ? 'valid-move' : ''} ${isValid === 'attack' ? 'in-attack-range' : ''}`}
           onClick={() => handleBoardClickVisual(visualR, visualC)} 
         >
+          {/* Coordinates Overlay */}
+          {visualC === 0 && <div className="coord-rank">{isFlipped ? visualR + 1 : 8 - visualR}</div>}
+          {visualR === 7 && <div className="coord-file">{String.fromCharCode(65 + visualC)}</div>}
+
           {cell && cell.type === 'tower' && (
             <div className={`tower-container ${animClass === 'damage' ? 'taking-damage' : ''}`} style={{width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
               <img src={cell.owner === socket.id ? towerGoodImg : towerBadImg} alt="tower" style={{width: '70%', height: '70%', objectFit: 'contain'}} />
@@ -230,13 +240,22 @@ const GameScreen = ({ gameData }) => {
       );
   };
 
-  const handleBoardClickVisual = (visualR, visualC) => {
-      const { r, c } = toLogical(visualR, visualC);
-      handleBoardClick(r, c);
-  };
-
   return (
     <div className="game-screen-layout">
+      {gameOverData && (
+        <div className="game-over-overlay">
+          <div className="game-over-content">
+            <h1 className={gameOverData.result === 'victory' ? 'victory-text' : 'defeat-text'}>
+              {gameOverData.result === 'victory' ? '¡VICTORIA!' : 'DERROTA'}
+            </h1>
+            <p className="game-over-reason">{gameOverData.reason}</p>
+            <button className="return-menu-btn" onClick={() => window.location.reload()}>
+              Volver al Menú
+            </button>
+          </div>
+        </div>
+      )}
+
       {attackCinematic && (
         <div className="attack-cinematic-overlay">
           <div className="cinematic-content">
@@ -316,7 +335,7 @@ const GameScreen = ({ gameData }) => {
                 <div className="detail-stats">
                     <div className="stat-row"><span>⚔️ Ataque:</span> <span>{selectedCardData.attack}</span></div>
                     <div className="stat-row"><span>🛡️ Defensa:</span> <span>{selectedCardData.defense}</span></div>
-                    <div className="stat-row"><span>❤️ Vida:</span> <span>{selectedCardData.maxHp}</span></div>
+                    <div className="stat-row"><span>❤️ Vida:</span> <span>{selectedUnitPos ? `${board[selectedUnitPos.r][selectedUnitPos.c].hp}/${selectedCardData.maxHp}` : selectedCardData.maxHp}</span></div>
                     <div className="stat-row"><span>🎯 Rango:</span> <span>{selectedCardData.range}</span></div>
                     <div className="stat-row"><span>👟 Velocidad:</span> <span>{selectedCardData.speed}</span></div>
                     <div className="stat-row"><span>⚡ Costo:</span> <span>{selectedCardData.cost}</span></div>
