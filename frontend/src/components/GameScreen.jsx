@@ -171,8 +171,8 @@ const GameScreen = ({ gameData }) => {
     }
   };
 
-  const { hand, energy, opponent, turn, board, player1, player2 } = gameState;
-  const isFlipped = socket.id === gameState.player2?.id;
+  const { hand, energy, opponent, turn, board } = gameState;
+  const isFlipped = socket.id === gameState.player2Id;
 
   const toVisual = (r, c) => isFlipped ? { r: 7 - r, c: 6 - c } : { r, c };
   const toLogical = (r, c) => isFlipped ? { r: 7 - r, c: 6 - c } : { r, c };
@@ -250,9 +250,9 @@ const GameScreen = ({ gameData }) => {
       const isDestroyed = destroyedCell && destroyedCell.r === r && destroyedCell.c === c;
 
       // Tower Image Logic:
-      // Visual Row 7 (Bottom) -> Always "Good" (Friendly/Blue)
-      // Visual Row 0 (Top) -> Always "Bad" (Enemy/Red)
-      const towerImg = visualR === 7 ? towerGoodImg : towerBadImg;
+      // Bind image to the owner's identity (P1 = Good/Blue, P2 = Bad/Red)
+      // This ensures P2 sees their specific tower (Red) at the bottom.
+      const towerImg = cell?.owner === gameState.player1Id ? towerGoodImg : towerBadImg;
 
       return (
         <div 

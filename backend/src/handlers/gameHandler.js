@@ -2,19 +2,24 @@ const { activeGames } = require("../state/gameState");
 
 module.exports = (io, socket) => {
   const emitGameUpdate = (game) => {
-    io.to(game.player1.socket.id).emit("game_update", {
+    const commonData = {
       gameId: game.id,
+      board: game.board,
+      player1Id: game.player1.id,
+      player2Id: game.player2.id,
+    };
+
+    io.to(game.player1.socket.id).emit("game_update", {
+      ...commonData,
       hand: game.player1.hand,
       energy: game.player1.energy,
-      board: game.board,
       turn: game.turn === game.player1.id,
       opponent: game.player2.name,
     });
     io.to(game.player2.socket.id).emit("game_update", {
-      gameId: game.id,
+      ...commonData,
       hand: game.player2.hand,
       energy: game.player2.energy,
-      board: game.board,
       turn: game.turn === game.player2.id,
       opponent: game.player1.name,
     });
