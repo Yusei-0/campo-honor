@@ -108,9 +108,53 @@
 
 .board-cell.in-attack-range {
   background: rgba(231, 76, 60, 0.3);
-  cursor: pointer;
+  cursor: crosshair;
   box-shadow: inset 0 0 10px #e74c3c;
 }
+
+/* Ability Targeting Highlights */
+.board-cell.ability-ally {
+  background: rgba(46, 204, 113, 0.4);
+  cursor: pointer;
+  box-shadow: inset 0 0 15px #2ecc71;
+  animation: abilityPulse 1.5s ease-in-out infinite;
+}
+
+.board-cell.ability-enemy {
+  background: rgba(231, 76, 60, 0.4);
+  cursor: pointer;
+  box-shadow: inset 0 0 15px #e74c3c;
+  animation: abilityPulse 1.5s ease-in-out infinite;
+}
+
+.board-cell.ability-tile {
+  background: rgba(155, 89, 182, 0.4);
+  cursor: pointer;
+  box-shadow: inset 0 0 15px #9b59b6;
+  animation: abilityPulse 1.5s ease-in-out infinite;
+}
+
+.board-cell.ability-self {
+  background: rgba(241, 196, 15, 0.4);
+  cursor: pointer;
+  box-shadow: inset 0 0 15px #f1c40f;
+  animation: abilityPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes abilityPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Custom Cursor - Simple and Discrete */
+* {
+  cursor: default;
+}
+
+button, .hand-card, .board-cell, a {
+  cursor: pointer;
+}
+
 
 /* Bottom Bar */
 .game-bottom-bar {
@@ -879,4 +923,177 @@
   font-family: 'Fredoka', sans-serif;
   font-weight: bold;
   font-size: 0.9rem;
+}
+
+/* Ability Cinematic Overlay */
+.ability-cinematic-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle, rgba(155, 89, 182, 0.3), rgba(0, 0, 0, 0.9));
+  backdrop-filter: blur(8px);
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: abilityFadeIn 0.3s ease-out;
+}
+
+.ability-cinematic-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  transform: scale(1.1);
+}
+
+.ability-caster-card {
+  width: 280px;
+  height: 400px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 5px solid #f1c40f;
+  border-radius: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 50px rgba(155, 89, 182, 0.8), 0 0 100px rgba(241, 196, 15, 0.5);
+  overflow: hidden;
+  animation: cardPulse 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ability-caster-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.ability-caster-card img {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 20px rgba(0,0,0,0.7));
+  z-index: 1;
+  animation: floatCaster 2s ease-in-out infinite;
+}
+
+.ability-caster-label {
+  position: absolute;
+  top: 15px;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.3rem;
+  color: #f1c40f;
+  text-shadow: 3px 3px 0 #000, 0 0 20px #f1c40f;
+  z-index: 2;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.ability-name-display {
+  background: linear-gradient(to right, rgba(155, 89, 182, 0.9), rgba(142, 68, 173, 0.9));
+  padding: 1.5rem 3rem;
+  border-radius: 15px;
+  border: 3px solid #f1c40f;
+  box-shadow: 0 0 30px rgba(241, 196, 15, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1);
+  animation: nameSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s backwards;
+  text-align: center;
+}
+
+.ability-name-text {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 3rem;
+  color: #fff;
+  text-shadow: 3px 3px 0 #000, 0 0 30px #f1c40f;
+  animation: textGlow 1.5s ease-in-out infinite;
+}
+
+.ability-effect-icon {
+  font-size: 2.5rem;
+  margin-top: 0.5rem;
+  animation: iconBounce 0.8s ease-in-out infinite;
+}
+
+.ability-effects-summary {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: effectsAppear 0.6s ease-out 0.6s backwards;
+}
+
+.ability-effect-item {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  border: 2px solid #9b59b6;
+  box-shadow: 0 0 20px rgba(155, 89, 182, 0.5);
+  animation: effectPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ability-effect-detail {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.5rem;
+  color: #ecf0f1;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  font-weight: bold;
+}
+
+/* Ability Animations */
+@keyframes abilityFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cardPulse {
+  0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+  50% { transform: scale(1.15) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+@keyframes floatCaster {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes nameSlideIn {
+  from { transform: translateY(-50px) scale(0.8); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes textGlow {
+  0%, 100% { text-shadow: 3px 3px 0 #000, 0 0 30px #f1c40f; }
+  50% { text-shadow: 3px 3px 0 #000, 0 0 50px #f1c40f, 0 0 70px #f39c12; }
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.2); }
+}
+
+@keyframes effectsAppear {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes effectPop {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
 }

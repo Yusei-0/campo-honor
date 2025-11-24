@@ -462,7 +462,15 @@ module.exports = (io, socket) => {
         io.to(game.player2.socket.id).emit("ability_result", abilityResult);
       }
 
-      // Abilities don't end turn automatically - player can still do other actions
+      // Damage abilities end turn (like attacks)
+      const dealsDamage =
+        ability.damage ||
+        (ability.customEffect && ability.customEffect.includes("damage"));
+      if (dealsDamage) {
+        console.log(`[ABILITY] ${ability.name} deals damage, ending turn`);
+        switchTurn(game);
+      }
+
       emitGameUpdate(game);
     } else {
       // Send error message to player

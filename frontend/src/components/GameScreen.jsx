@@ -49,6 +49,7 @@ const GameScreen = ({ gameData }) => {
   const [destroyedCell, setDestroyedCell] = useState(null);
   const [prompt, setPrompt] = useState(null);
   const [selectedAbility, setSelectedAbility] = useState(null); // {unitPos, abilityIndex, ability}
+  const [abilityCinematic, setAbilityCinematic] = useState(null);
 
   useEffect(() => {
     if (!socket) return;
@@ -105,12 +106,22 @@ const GameScreen = ({ gameData }) => {
       setGameOverData(data);
     });
 
+    socket.on('ability_result', (data) => {
+      setAbilityCinematic(data);
+      playSound('attack'); // Reuse attack sound for now
+      
+      setTimeout(() => {
+        setAbilityCinematic(null);
+      }, 3000);
+    });
+
     return () => {
       socket.off('game_update');
       socket.off('game_start');
       socket.off('action_prompt');
       socket.off('attack_result');
       socket.off('game_over');
+      socket.off('ability_result');
     };
   }, [socket, gameState.turn, attackCinematic, playSound]);
 
@@ -126,6 +137,87 @@ const GameScreen = ({ gameData }) => {
       setMode('summon');
       playSound('click');
     }
+  };
+
+  const getAbilityDescription = (ability) => {
+    const parts = [];
+    
+    // Type
+    if (ability.abilityType === 'passive') {
+      const triggerText = {
+        'onKill': 'Al matar',
+        'onStartTurn': 'Al inicio del turno',
+        'onBeingDamaged': 'Al recibir daño'
+      };
+      parts.push(`🔄 ${triggerText[ability.trigger] || 'Pasiva'}`);
+    }
+    
+    // Damage
+    if (ability.damage) {
+      parts.push(`💥 ${ability.damage} de daño`);
+      if (ability.ignoresDefense) parts.push('(ignora defensa)');
+    }
+    
+    // Healing
+    if (ability.heal) {
+      parts.push(`💚 Cura ${ability.heal} HP`);
+    }
+    
+    // Buffs
+    if (ability.buff) {
+      const buffParts = [];
+      if (ability.buff.attack) buffParts.push(`+${ability.buff.attack} ATQ`);
+      if (ability.buff.defense) buffParts.push(`+${ability.buff.defense} DEF`);
+      if (ability.buff.speed) buffParts.push(`+${ability.buff.speed} VEL`);
+      if (buffParts.length > 0) {
+        parts.push(`📈 ${buffParts.join(', ')}`);
+        if (ability.buff.durationTurns) {
+          parts.push(`(${ability.buff.durationTurns} turnos)`);
+        } else {
+          parts.push('(permanente)');
+        }
+      }
+    }
+    
+    // Debuffs
+    if (ability.debuff) {
+      const debuffParts = [];
+      if (ability.debuff.attack) debuffParts.push(`-${ability.debuff.attack} ATQ`);
+      if (ability.debuff.defense) debuffParts.push(`-${ability.debuff.defense} DEF`);
+      if (ability.debuff.speed) debuffParts.push(`-${ability.debuff.speed} VEL`);
+      if (debuffParts.length > 0) {
+        parts.push(`📉 ${debuffParts.join(', ')}`);
+        if (ability.debuff.durationTurns) {
+          parts.push(`(${ability.debuff.durationTurns} turnos)`);
+        }
+      }
+    }
+    
+    // Area of Effect
+    if (ability.areaEffect) {
+      parts.push(`🌐 Área ${ability.areaSize}x${ability.areaSize}`);
+      if (ability.friendlyFire) parts.push('⚠️ Daño aliado');
+    }
+    
+    // Range
+    if (ability.range) {
+      parts.push(`🎯 Rango: ${ability.range}`);
+    }
+    
+    // Target
+    const targetText = {
+      'self': 'Propio',
+      'ally': 'Aliado',
+      'enemy': 'Enemigo',
+      'allAllies': 'Todos los aliados',
+      'allEnemies': 'Todos los enemigos',
+      'tile': 'Casilla'
+    };
+    if (ability.target && targetText[ability.target]) {
+      parts.push(`👤 ${targetText[ability.target]}`);
+    }
+    
+    return parts.join(' • ');
   };
 
   const handleAbilityClick = (abilityIndex) => {
@@ -144,6 +236,53 @@ const GameScreen = ({ gameData }) => {
     });
     setMode('ability');
     playSound('click');
+  };
+
+  const getValidAbilityTargets = () => {
+    if (!selectedAbility || mode !== 'ability') return {};
+    
+    const { ability, unitPos } = selectedAbility;
+    const valid = {};
+    
+    // Self-targeting abilities
+    if (ability.target === 'self') {
+      const visual = toVisual(unitPos.r, unitPos.c);
+      valid[`${visual.r}-${visual.c}`] = 'ability-self';
+      return valid;
+    }
+    
+    // All allies/enemies don't need visual highlighting (auto-target)
+    if (ability.target === 'allAllies' || ability.target === 'allEnemies') {
+      return valid;
+    }
+    
+    // Single target or tile abilities
+    for (let r = 0; r < board.length; r++) {
+      for (let c = 0; c < board[r].length; c++) {
+        const cell = board[r][c];
+        const dist = Math.abs(unitPos.r - r) + Math.abs(unitPos.c - c);
+        
+        // Check range
+        if (ability.range && dist > ability.range) continue;
+        
+        // Check target type
+        let isValid = false;
+        if (ability.target === 'tile') {
+          isValid = true;
+        } else if (ability.target === 'ally' && cell && cell.owner === socket.id) {
+          isValid = true;
+        } else if (ability.target === 'enemy' && cell && cell.owner !== socket.id) {
+          isValid = true;
+        }
+        
+        if (isValid) {
+          const visual = toVisual(r, c);
+          valid[`${visual.r}-${visual.c}`] = `ability-${ability.target}`;
+        }
+      }
+    }
+    
+    return valid;
   };
 
   const handleBoardClick = (r, c) => {
@@ -231,6 +370,11 @@ const GameScreen = ({ gameData }) => {
     const valid = {};
     if (!gameState.turn) return valid;
 
+    // Ability targeting has priority
+    if (mode === 'ability' && selectedAbility) {
+      return getValidAbilityTargets();
+    }
+
     if (mode === 'summon' && selectedCardIndex !== null) {
       const startR = isFlipped ? 1 : 6;
       for (let c = 0; c < board[0].length; c++) {
@@ -307,7 +451,7 @@ const GameScreen = ({ gameData }) => {
       return (
         <div 
           key={cellKey} 
-          className={`board-cell ${isValid === 'spawn' ? 'valid-spawn' : ''} ${isValid === 'move' ? 'valid-move' : ''} ${isValid === 'attack' ? 'in-attack-range' : ''}`}
+          className={`board-cell ${isValid === 'spawn' ? 'valid-spawn' : ''} ${isValid === 'move' ? 'valid-move' : ''} ${isValid === 'attack' ? 'in-attack-range' : ''} ${isValid?.startsWith('ability-') ? isValid : ''}`}
           onClick={() => handleBoardClickVisual(visualR, visualC)} 
         >
           {/* Coordinates Overlay: 
@@ -399,6 +543,58 @@ const GameScreen = ({ gameData }) => {
         </div>
       )}
 
+      {/* Ability Cinematic Overlay */}
+      {abilityCinematic && (() => {
+        const casterUnit = board[abilityCinematic.unitPos.r][abilityCinematic.unitPos.c];
+        const casterCard = casterUnit ? getCardData(casterUnit.id) : null;
+        
+        return (
+          <div className="ability-cinematic-overlay">
+            <div className="ability-cinematic-content">
+              {/* Caster Card */}
+              <div className="ability-caster-card">
+                <img src={casterCard ? getImageForCard(casterCard.id) : knightPng} alt="Caster" />
+                <div className="ability-caster-label">LANZANDO</div>
+              </div>
+              
+              {/* Ability Name */}
+              <div className="ability-name-display">
+                <div className="ability-name-text">{abilityCinematic.abilityName}</div>
+                <div className="ability-effect-icon">
+                  {abilityCinematic.effects && abilityCinematic.effects.length > 0 && (
+                    <>
+                      {abilityCinematic.effects.some(e => e.effects?.some(ef => ef.type === 'damage')) && '💥'}
+                      {abilityCinematic.effects.some(e => e.effects?.some(ef => ef.type === 'heal')) && '💚'}
+                      {abilityCinematic.effects.some(e => e.effects?.some(ef => ef.type === 'buff')) && '📈'}
+                      {abilityCinematic.effects.some(e => e.effects?.some(ef => ef.type === 'debuff')) && '📉'}
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              {/* Effects Summary */}
+              {abilityCinematic.effects && abilityCinematic.effects.length > 0 && (
+                <div className="ability-effects-summary">
+                  {abilityCinematic.effects.map((effect, idx) => (
+                    <div key={idx} className="ability-effect-item">
+                      {effect.effects.map((e, i) => (
+                        <div key={i} className="ability-effect-detail">
+                          {e.type === 'damage' && `💥 -${e.value}`}
+                          {e.type === 'heal' && `💚 +${e.value}`}
+                          {e.type === 'buff' && '📈 Buff'}
+                          {e.type === 'debuff' && '📉 Debuff'}
+                          {e.type === 'kill' && '💀 Eliminado'}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="game-main-area">
         {showTurnBanner && <div className="turn-banner">{turnBannerText}</div>}
         
@@ -456,16 +652,8 @@ const GameScreen = ({ gameData }) => {
                 </div>
                 <h4>{selectedCardData.name}</h4>
                 <p className="detail-desc">{selectedCardData.description}</p>
-                <div className="detail-stats">
-                    <div className="stat-row"><span>⚔️ Ataque:</span> <span>{selectedCardData.attack}</span></div>
-                    <div className="stat-row"><span>🛡️ Defensa:</span> <span>{selectedCardData.defense}</span></div>
-                    <div className="stat-row"><span>❤️ Vida:</span> <span>{selectedUnitPos ? `${board[selectedUnitPos.r][selectedUnitPos.c].hp}/${selectedCardData.maxHp}` : selectedCardData.maxHp}</span></div>
-                    <div className="stat-row"><span>🎯 Rango:</span> <span>{selectedCardData.range}</span></div>
-                    <div className="stat-row"><span>👟 Velocidad:</span> <span>{selectedCardData.speed}</span></div>
-                    <div className="stat-row"><span>⚡ Costo:</span> <span>{selectedCardData.cost}</span></div>
-                </div>
                 
-                {/* Ability Buttons - Only show for selected units with active abilities */}
+                {/* Ability Section - Now FIRST */}
                 {selectedUnitPos && board[selectedUnitPos.r][selectedUnitPos.c]?.abilities && (
                   <div className="ability-list">
                     <div className="ability-buttons-title">✨ Habilidades</div>
@@ -477,7 +665,11 @@ const GameScreen = ({ gameData }) => {
                             {ability.abilityType === 'active' ? `⚡${ability.energyCost}` : '🔄 Pasiva'}
                           </span>
                         </div>
-                        {ability.abilityType === 'active' && gameState.turn && (
+                        <div className="ability-item-desc">
+                          {getAbilityDescription(ability)}
+                        </div>
+                        {/* Only show button if it's MY unit and it's active */}
+                        {ability.abilityType === 'active' && gameState.turn && selectedUnitPos && board[selectedUnitPos.r][selectedUnitPos.c]?.owner === socket.id && (
                           <button 
                             className="ability-btn"
                             onClick={() => handleAbilityClick(index)}
@@ -487,18 +679,20 @@ const GameScreen = ({ gameData }) => {
                             <span className="ability-btn-cost">⚡ {ability.energyCost}</span>
                           </button>
                         )}
-                        <div className="ability-item-desc">
-                          {ability.damage && `💥 Daño: ${ability.damage}`}
-                          {ability.heal && `💚 Curación: ${ability.heal}`}
-                          {ability.buff && ` 📈 Buff`}
-                          {ability.debuff && ` 📉 Debuff`}
-                          {ability.areaEffect && ` 🌐 AoE ${ability.areaSize}x${ability.areaSize}`}
-                          {ability.range && ` 🎯 Rango: ${ability.range}`}
-                        </div>
                       </div>
                     ))}
                   </div>
                 )}
+                
+                {/* Stats Section - Now SECOND */}
+                <div className="detail-stats">
+                    <div className="stat-row"><span>⚔️ Ataque:</span> <span>{selectedCardData.attack}</span></div>
+                    <div className="stat-row"><span>🛡️ Defensa:</span> <span>{selectedCardData.defense}</span></div>
+                    <div className="stat-row"><span>❤️ Vida:</span> <span>{selectedUnitPos ? `${board[selectedUnitPos.r][selectedUnitPos.c].hp}/${selectedCardData.maxHp}` : selectedCardData.maxHp}</span></div>
+                    <div className="stat-row"><span>🎯 Rango:</span> <span>{selectedCardData.range}</span></div>
+                    <div className="stat-row"><span>👟 Velocidad:</span> <span>{selectedCardData.speed}</span></div>
+                    <div className="stat-row"><span>⚡ Costo:</span> <span>{selectedCardData.cost}</span></div>
+                </div>
             </div>
         ) : (
             <div className="empty-details">
