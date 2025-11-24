@@ -1,6 +1,11 @@
 const { activeGames } = require("../state/gameState");
 const { computeBestMove } = require("../ai/aiEngine");
 const { SPAWN_ZONES } = require("../constants/game");
+const {
+  executeActiveAbility,
+  triggerPassiveAbilities,
+  updateBuffDurations,
+} = require("../abilities/abilityEngine");
 
 module.exports = (io, socket) => {
   const emitGameUpdate = (game) => {
@@ -9,6 +14,7 @@ module.exports = (io, socket) => {
       board: game.board,
       player1Id: game.player1.id,
       player2Id: game.player2.id,
+      activeBuffs: game.activeBuffs || [],
     };
 
     // If player 2 is AI, we don't need to emit to its socket (it's a mock)
@@ -67,8 +73,10 @@ module.exports = (io, socket) => {
         range: cardData.range,
         speed: cardData.speed,
         isRanged: cardData.isRanged,
+        abilities: cardData.abilities || [],
         hasMoved: false,
         hasAttacked: false,
+        abilityUsedThisTurn: false,
       };
 
       console.log("[AI] Summoned unit");
@@ -140,13 +148,14 @@ module.exports = (io, socket) => {
 
     console.log("[TURN SWITCH] Before:", game.turn);
 
-    // Reset unit states for the player whose turn is ending
+    // Reset unit states for the new active player
     for (let r = 0; r < game.board.length; r++) {
       for (let c = 0; c < game.board[r].length; c++) {
         const cell = game.board[r][c];
         if (cell && cell.type === "unit" && cell.owner === game.turn) {
           cell.hasMoved = false;
           cell.hasAttacked = false;
+          cell.abilityUsedThisTurn = false; // Reset ability usage
         }
       }
     }
@@ -159,6 +168,18 @@ module.exports = (io, socket) => {
     const activePlayer =
       game.turn === game.player1.id ? game.player1 : game.player2;
     if (activePlayer.energy < 10) activePlayer.energy += 1;
+
+    // Update buff/debuff durations
+    updateBuffDurations(game);
+
+    // Trigger onStartTurn passive abilities
+    const startTurnEffects = triggerPassiveAbilities(game, "onStartTurn", {});
+    if (startTurnEffects.length > 0) {
+      console.log(
+        "[PASSIVE] onStartTurn abilities triggered:",
+        startTurnEffects
+      );
+    }
 
     console.log("[TURN SWITCH] After:", game.turn);
 
@@ -206,8 +227,10 @@ module.exports = (io, socket) => {
       range: cardData.range,
       speed: cardData.speed,
       isRanged: cardData.isRanged,
+      abilities: cardData.abilities || [],
       hasMoved: false,
       hasAttacked: false,
+      abilityUsedThisTurn: false,
     };
 
     console.log("[SUMMON] Unit summoned, switching turn");
@@ -334,10 +357,25 @@ module.exports = (io, socket) => {
     const damage = Math.max(1, attacker.attack - (target.defense || 0));
     target.hp -= damage;
 
+    // Trigger onBeingDamaged passive abilities
+    const damagedEffects = triggerPassiveAbilities(game, "onBeingDamaged", {
+      damagedUnit: target,
+      damagedPos: to,
+    });
+
     attacker.hasAttacked = true;
 
     if (target.hp <= 0) {
       game.board[to.r][to.c] = null;
+
+      // Trigger onKill passive abilities
+      const killEffects = triggerPassiveAbilities(game, "onKill", {
+        killerPos: from,
+        victimPos: to,
+      });
+      if (killEffects.length > 0) {
+        console.log("[PASSIVE] onKill abilities triggered:", killEffects);
+      }
 
       if (target.type === "tower") {
         const winner = socket.id;
@@ -384,6 +422,52 @@ module.exports = (io, socket) => {
 
     switchTurn(game);
     emitGameUpdate(game);
+  });
+
+  socket.on("use_ability", ({ gameId, unitPos, abilityIndex, targetPos }) => {
+    const game = activeGames[gameId];
+    if (!game) return;
+    if (game.turn !== socket.id) return;
+
+    const unit = game.board[unitPos.r][unitPos.c];
+    if (!unit || unit.owner !== socket.id) return;
+    if (unit.type !== "unit") return;
+    if (!unit.abilities || abilityIndex >= unit.abilities.length) return;
+
+    const ability = unit.abilities[abilityIndex];
+    if (ability.abilityType !== "active") return;
+
+    // Execute ability
+    const result = executeActiveAbility(
+      game,
+      socket.id,
+      unitPos,
+      ability,
+      targetPos
+    );
+
+    if (result.success) {
+      console.log(`[ABILITY] ${ability.name} used successfully`);
+
+      // Emit ability result to both players
+      const abilityResult = {
+        abilityName: ability.name,
+        unitPos,
+        targetPos,
+        effects: result.effects,
+      };
+
+      io.to(game.player1.socket.id).emit("ability_result", abilityResult);
+      if (game.player2.socket && game.player2.socket.emit) {
+        io.to(game.player2.socket.id).emit("ability_result", abilityResult);
+      }
+
+      // Abilities don't end turn automatically - player can still do other actions
+      emitGameUpdate(game);
+    } else {
+      // Send error message to player
+      socket.emit("ability_error", { message: result.message });
+    }
   });
 
   socket.on("end_turn", ({ gameId }) => {

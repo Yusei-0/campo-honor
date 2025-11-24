@@ -48,6 +48,7 @@ const GameScreen = ({ gameData }) => {
   const [gameOverData, setGameOverData] = useState(null);
   const [destroyedCell, setDestroyedCell] = useState(null);
   const [prompt, setPrompt] = useState(null);
+  const [selectedAbility, setSelectedAbility] = useState(null); // {unitPos, abilityIndex, ability}
 
   useEffect(() => {
     if (!socket) return;
@@ -121,9 +122,28 @@ const GameScreen = ({ gameData }) => {
     } else {
       setSelectedCardIndex(index);
       setSelectedUnitPos(null);
+      setSelectedAbility(null);
       setMode('summon');
       playSound('click');
     }
+  };
+
+  const handleAbilityClick = (abilityIndex) => {
+    if (!selectedUnitPos) return;
+    const unit = board[selectedUnitPos.r][selectedUnitPos.c];
+    if (!unit || !unit.abilities || abilityIndex >= unit.abilities.length) return;
+    
+    const ability = unit.abilities[abilityIndex];
+    if (ability.abilityType !== 'active') return;
+    
+    // Set ability as selected and enter ability targeting mode
+    setSelectedAbility({
+      unitPos: selectedUnitPos,
+      abilityIndex,
+      ability
+    });
+    setMode('ability');
+    playSound('click');
   };
 
   const handleBoardClick = (r, c) => {
@@ -139,6 +159,25 @@ const GameScreen = ({ gameData }) => {
              playSound('click');
         }
         return;
+    }
+
+    // Ability Targeting Logic (Priority over attack)
+    if (mode === 'ability' && selectedAbility) {
+      const { unitPos, abilityIndex, ability } = selectedAbility;
+      
+      // Emit use_ability event
+      socket.emit('use_ability', {
+        gameId: gameState.gameId,
+        unitPos,
+        abilityIndex,
+        targetPos: { r, c }
+      });
+      
+      // Reset ability selection
+      setSelectedAbility(null);
+      setMode('move');
+      playSound('click');
+      return;
     }
 
     // Attack Logic (Priority over viewing)
@@ -425,6 +464,41 @@ const GameScreen = ({ gameData }) => {
                     <div className="stat-row"><span>👟 Velocidad:</span> <span>{selectedCardData.speed}</span></div>
                     <div className="stat-row"><span>⚡ Costo:</span> <span>{selectedCardData.cost}</span></div>
                 </div>
+                
+                {/* Ability Buttons - Only show for selected units with active abilities */}
+                {selectedUnitPos && board[selectedUnitPos.r][selectedUnitPos.c]?.abilities && (
+                  <div className="ability-list">
+                    <div className="ability-buttons-title">✨ Habilidades</div>
+                    {board[selectedUnitPos.r][selectedUnitPos.c].abilities.map((ability, index) => (
+                      <div key={index} className="ability-item">
+                        <div className="ability-item-header">
+                          <span className="ability-item-name">{ability.name}</span>
+                          <span className="ability-item-type">
+                            {ability.abilityType === 'active' ? `⚡${ability.energyCost}` : '🔄 Pasiva'}
+                          </span>
+                        </div>
+                        {ability.abilityType === 'active' && gameState.turn && (
+                          <button 
+                            className="ability-btn"
+                            onClick={() => handleAbilityClick(index)}
+                            disabled={!gameState.turn || board[selectedUnitPos.r][selectedUnitPos.c].abilityUsedThisTurn || energy < (ability.energyCost || 0)}
+                          >
+                            <span className="ability-btn-name">Usar {ability.name}</span>
+                            <span className="ability-btn-cost">⚡ {ability.energyCost}</span>
+                          </button>
+                        )}
+                        <div className="ability-item-desc">
+                          {ability.damage && `💥 Daño: ${ability.damage}`}
+                          {ability.heal && `💚 Curación: ${ability.heal}`}
+                          {ability.buff && ` 📈 Buff`}
+                          {ability.debuff && ` 📉 Debuff`}
+                          {ability.areaEffect && ` 🌐 AoE ${ability.areaSize}x${ability.areaSize}`}
+                          {ability.range && ` 🎯 Rango: ${ability.range}`}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
             </div>
         ) : (
             <div className="empty-details">
