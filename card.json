@@ -8,8 +8,20 @@
     "range": 1,
     "speed": 3,
     "maxHp": 14,
-    "description": "Equilibrado y valiente.",
-    "isRanged": false
+    "description": "Unidad equilibrada de combate cuerpo a cuerpo.",
+    "isRanged": false,
+    "abilities": [
+      {
+        "name": "Coraje de Acero",
+        "abilityType": "passive",
+        "trigger": "onKill",
+        "target": "self",
+        "buff": {
+          "attack": 1,
+          "durationTurns": null
+        }
+      }
+    ]
   },
   {
     "id": "card_archer",
@@ -20,8 +32,19 @@
     "range": 3,
     "speed": 2,
     "maxHp": 10,
-    "description": "Ataque a distancia letal.",
-    "isRanged": true
+    "description": "Unidad de ataque a distancia ágil con precisión.",
+    "isRanged": true,
+    "abilities": [
+      {
+        "name": "Disparo Penetrante",
+        "abilityType": "active",
+        "energyCost": 2,
+        "target": "enemy",
+        "damage": 5,
+        "ignoresDefense": true,
+        "range": 3
+      }
+    ]
   },
   {
     "id": "card_mage",
@@ -32,8 +55,31 @@
     "range": 3,
     "speed": 2,
     "maxHp": 10,
-    "description": "Daño mágico devastador.",
-    "isRanged": true
+    "description": "Unidad enfocada en daño mágico desde la distancia.",
+    "isRanged": true,
+    "abilities": [
+      {
+        "name": "Bola de Fuego",
+        "abilityType": "active",
+        "energyCost": 3,
+        "target": "enemy",
+        "damage": 7,
+        "ignoresDefense": true,
+        "range": 3,
+        "areaEffect": false
+      },
+      {
+        "name": "Explosión Arcana",
+        "abilityType": "active",
+        "energyCost": 4,
+        "target": "tile",
+        "damage": 4,
+        "areaEffect": true,
+        "areaSize": 3,
+        "range": 3,
+        "friendlyFire": false
+      }
+    ]
   },
   {
     "id": "card_shield",
@@ -44,8 +90,32 @@
     "range": 1,
     "speed": 2,
     "maxHp": 20,
-    "description": "Tanque con alta defensa.",
-    "isRanged": false
+    "description": "Tanque diseñado para absorber daño en primera línea.",
+    "isRanged": false,
+    "abilities": [
+      {
+        "name": "Muralla de Acero",
+        "abilityType": "active",
+        "energyCost": 2,
+        "target": "self",
+        "buff": {
+          "defense": 4,
+          "durationTurns": 2
+        }
+      },
+      {
+        "name": "Protección del Escudo",
+        "abilityType": "passive",
+        "trigger": "onStartTurn",
+        "target": "allAllies",
+        "areaEffect": true,
+        "areaSize": 1,
+        "buff": {
+          "defense": 1,
+          "durationTurns": 1
+        }
+      }
+    ]
   },
   {
     "id": "card_lancer",
@@ -56,8 +126,22 @@
     "range": 1,
     "speed": 4,
     "maxHp": 12,
-    "description": "Rápido flanqueador.",
-    "isRanged": false
+    "description": "Unidad móvil ideal para flanqueos y ataques rápidos.",
+    "isRanged": false,
+    "abilities": [
+      {
+        "name": "Carga Relámpago",
+        "abilityType": "active",
+        "energyCost": 2,
+        "target": "enemy",
+        "allowAttackAfterFullMove": true,
+        "damage": 6,
+        "debuff": {
+          "attack": 1,
+          "durationTurns": 1
+        }
+      }
+    ]
   },
   {
     "id": "card_catapult",
@@ -68,8 +152,30 @@
     "range": 4,
     "speed": 1,
     "maxHp": 10,
-    "description": "Lento pero destructor de torres.",
-    "isRanged": true
+    "description": "Unidad lenta capaz de destruir defensas y torres.",
+    "isRanged": true,
+    "abilities": [
+      {
+        "name": "Disparo Pesado",
+        "abilityType": "active",
+        "energyCost": 3,
+        "target": "enemy",
+        "damage": 8,
+        "range": 4,
+        "customEffect": "extraDamageAgainstStructures:3"
+      },
+      {
+        "name": "Tiro de Artillería",
+        "abilityType": "active",
+        "energyCost": 4,
+        "target": "tile",
+        "damage": 6,
+        "areaEffect": true,
+        "areaSize": 3,
+        "range": 4,
+        "friendlyFire": true
+      }
+    ]
   },
   {
     "id": "card_healer",
@@ -80,7 +186,26 @@
     "range": 2,
     "speed": 2,
     "maxHp": 10,
-    "description": "Apoyo vital para las tropas.",
-    "isRanged": true
+    "description": "Unidad de apoyo que mantiene al ejército en pie.",
+    "isRanged": true,
+    "abilities": [
+      {
+        "name": "Luz Restauradora",
+        "abilityType": "active",
+        "energyCost": 2,
+        "target": "ally",
+        "heal": 4,
+        "range": 2
+      },
+      {
+        "name": "Aura de Fe",
+        "abilityType": "passive",
+        "trigger": "onStartTurn",
+        "target": "allAllies",
+        "areaEffect": true,
+        "areaSize": 1,
+        "heal": 1
+      }
+    ]
   }
 ]
