@@ -1,7 +1,7 @@
 // Game Constants
 const BOARD_WIDTH = 7;
 const BOARD_HEIGHT = 8;
-const TOWER_HP = 25;
+const TOWER_HP = 30;
 
 // Tower Positions (row, col)
 const TOWER_POSITIONS = {

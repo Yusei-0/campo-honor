@@ -36,7 +36,7 @@ const Card = ({ card }) => {
           </div>
           <div className="card-header">
             <h3 className="card-name">{card.name}</h3>
-            <span className="card-type">{card.type}</span>
+            <span className="card-type">{card.isRanged ? 'A Distancia' : 'Cuerpo a Cuerpo'}</span>
           </div>
           <div className="card-stats">
             <div className="stat-row">
@@ -62,24 +62,9 @@ const Card = ({ card }) => {
           </div>
         </div>
         <div className="card-back">
-          {card.abilities && card.abilities.length > 0 ? (
-            <>
-              <h3 className="abilities-title">Habilidades</h3>
-              {card.abilities.map((ability, index) => (
-                <div key={index} className="ability">
-                  <div className="ability-name">
-                    {ability.name}
-                    <span className="ability-cost">⚡ {ability.energyCost}</span>
-                  </div>
-                  <div className="ability-effect">{ability.effect}</div>
-                </div>
-              ))}
-            </>
-          ) : (
-            <div className="no-abilities">
-              <p>Sin habilidades especiales</p>
+            <div className="card-description">
+                <p>{card.description}</p>
             </div>
-          )}
         </div>
       </div>
     </div>
