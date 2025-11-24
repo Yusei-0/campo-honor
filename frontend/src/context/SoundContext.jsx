@@ -53,6 +53,22 @@ export const SoundProvider = ({ children }) => {
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
         osc.start();
         osc.stop(ctx.currentTime + 0.05);
+      } else if (type === 'attack') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(100, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(300, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      } else if (type === 'destroy') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(100, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(10, ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
       }
     } catch (e) {
       console.error("Audio error:", e);

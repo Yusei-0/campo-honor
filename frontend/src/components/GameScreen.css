@@ -654,6 +654,17 @@
   background: #f39c12;
 }
 
+/* Unit Destruction FX */
+.unit-destroyed {
+  animation: unitDestroy 1s ease-out forwards;
+}
+
+@keyframes unitDestroy {
+  0% { transform: scale(1); filter: brightness(1) hue-rotate(0deg); opacity: 1; }
+  20% { transform: scale(1.2); filter: brightness(2) hue-rotate(-45deg); }
+  100% { transform: scale(0); filter: brightness(0); opacity: 0; }
+}
+
 /* Board Coordinates */
 .coord-rank {
   position: absolute;

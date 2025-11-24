@@ -46,6 +46,7 @@ const GameScreen = ({ gameData }) => {
   const [animatingCells, setAnimatingCells] = useState({});
   const [attackCinematic, setAttackCinematic] = useState(null);
   const [gameOverData, setGameOverData] = useState(null);
+  const [destroyedCell, setDestroyedCell] = useState(null);
 
   useEffect(() => {
     if (!socket) return;
@@ -53,25 +54,43 @@ const GameScreen = ({ gameData }) => {
     socket.on('attack_result', (data) => {
       setAttackCinematic(data);
       playSound('attack'); 
+      
+      if (data.isKill) {
+        setTimeout(() => {
+          setDestroyedCell(data.to); // Logical coords
+          playSound('destroy');
+        }, 1500); // Trigger destruction mid-cinematic or right after hit
+      }
+
       setTimeout(() => {
         setAttackCinematic(null);
-      }, 2500); 
+        setDestroyedCell(null);
+      }, 3000); // Cinematic + little buffer
     });
 
     socket.on('game_update', (data) => {
       const wasTurn = gameState.turn;
       const isTurn = data.turn;
       
+      setGameState(data);
+      
+      // Delay turn banner if cinematic might be playing
+      const delay = attackCinematic ? 3000 : 0;
+      
       if (wasTurn !== isTurn) {
-        setTurnBannerText(isTurn ? '¡TU TURNO!' : 'TURNO DEL OPONENTE');
-        setShowTurnBanner(true);
-        setTimeout(() => setShowTurnBanner(false), 2000);
+        setTimeout(() => {
+            setTurnBannerText(isTurn ? '¡TU TURNO!' : 'TURNO DEL OPONENTE');
+            setShowTurnBanner(true);
+            setTimeout(() => setShowTurnBanner(false), 2000);
+        }, delay);
       }
       
-      setGameState(data);
-      setSelectedCardIndex(null);
-      setSelectedUnitPos(null);
-      setMode('summon');
+      // Only reset selection if it was a move/summon action, not just an update
+      if (!attackCinematic) {
+          setSelectedCardIndex(null);
+          setSelectedUnitPos(null);
+          setMode('summon');
+      }
     });
     socket.on('game_over', (data) => {
       setGameOverData(data);
@@ -81,7 +100,7 @@ const GameScreen = ({ gameData }) => {
       socket.off('game_over');
       socket.off('attack_result');
     };
-  }, [socket, gameState.turn]);
+  }, [socket, gameState.turn, attackCinematic]);
 
   const handleCardClick = (index) => {
     if (!gameState.turn) return;
@@ -97,8 +116,35 @@ const GameScreen = ({ gameData }) => {
   };
 
   const handleBoardClick = (r, c) => {
-    if (!gameState.turn) return;
+    // Always allow viewing details of any unit
     const clickedCell = gameState.board[r][c];
+    
+    if (!gameState.turn) {
+        // If not my turn, allow viewing details
+        if (clickedCell && clickedCell.type === 'unit') {
+             setSelectedUnitPos({ r, c });
+             setSelectedCardIndex(null);
+             setMode('view');
+             playSound('click');
+        }
+        return;
+    }
+
+    // Attack Logic (Priority over viewing)
+    if (mode === 'attack' && selectedUnitPos && clickedCell && clickedCell.owner !== socket.id) {
+      socket.emit('attack_unit', { gameId: gameState.gameId, from: selectedUnitPos, to: { r, c } });
+      // Animation handled by cinematic now
+      return;
+    }
+
+    // View Details Logic (Only if not attacking)
+    if (clickedCell && clickedCell.type === 'unit' && clickedCell.owner !== socket.id) {
+        setSelectedUnitPos({ r, c });
+        setSelectedCardIndex(null);
+        setMode('view'); 
+        playSound('click');
+        return;
+    }
     
     if (mode === 'summon' && selectedCardIndex !== null) {
       socket.emit('summon_unit', { gameId: gameState.gameId, cardIndex: selectedCardIndex, target: { r, c } });
@@ -123,14 +169,6 @@ const GameScreen = ({ gameData }) => {
       setTimeout(() => setAnimatingCells({}), 400);
       return;
     }
-    
-    if (mode === 'attack' && selectedUnitPos && clickedCell && clickedCell.owner !== socket.id) {
-      socket.emit('attack_unit', { gameId: gameState.gameId, from: selectedUnitPos, to: { r, c } });
-      setAnimatingCells({[`${selectedUnitPos.r}-${selectedUnitPos.c}`]: 'attack', [`${r}-${c}`]: 'damage'});
-      playSound('click');
-      setTimeout(() => setAnimatingCells({}), 600);
-      return;
-    }
   };
 
   const { hand, energy, opponent, turn, board, player1, player2 } = gameState;
@@ -141,6 +179,8 @@ const GameScreen = ({ gameData }) => {
 
   const getValidCells = () => {
     const valid = {};
+    if (!gameState.turn) return valid;
+
     if (mode === 'summon' && selectedCardIndex !== null) {
       const startR = isFlipped ? 1 : 6;
       for (let c = 0; c < board[0].length; c++) {
@@ -207,6 +247,12 @@ const GameScreen = ({ gameData }) => {
       
       const isSelected = selectedUnitPos && selectedUnitPos.r === r && selectedUnitPos.c === c;
       const animClass = animatingCells[`${r}-${c}`]; 
+      const isDestroyed = destroyedCell && destroyedCell.r === r && destroyedCell.c === c;
+
+      // Tower Image Logic:
+      // Visual Row 7 (Bottom) -> Always "Good" (Friendly/Blue)
+      // Visual Row 0 (Top) -> Always "Bad" (Enemy/Red)
+      const towerImg = visualR === 7 ? towerGoodImg : towerBadImg;
 
       return (
         <div 
@@ -214,18 +260,25 @@ const GameScreen = ({ gameData }) => {
           className={`board-cell ${isValid === 'spawn' ? 'valid-spawn' : ''} ${isValid === 'move' ? 'valid-move' : ''} ${isValid === 'attack' ? 'in-attack-range' : ''}`}
           onClick={() => handleBoardClickVisual(visualR, visualC)} 
         >
-          {/* Coordinates Overlay */}
+          {/* Coordinates Overlay: 
+              P1 (Standard): Visual 7 (Bottom) is Rank 1. 
+              P2 (Flipped): Visual 7 (Bottom) is Rank 8. 
+          */}
           {visualC === 0 && <div className="coord-rank">{isFlipped ? visualR + 1 : 8 - visualR}</div>}
-          {visualR === 7 && <div className="coord-file">{String.fromCharCode(65 + visualC)}</div>}
+          {/* Files: A-G. 
+              P1: Visual 0 is A. 
+              P2: Visual 0 is G. 
+          */}
+          {visualR === 7 && <div className="coord-file">{String.fromCharCode(65 + (isFlipped ? 6 - visualC : visualC))}</div>}
 
           {cell && cell.type === 'tower' && (
             <div className={`tower-container ${animClass === 'damage' ? 'taking-damage' : ''}`} style={{width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
-              <img src={cell.owner === socket.id ? towerGoodImg : towerBadImg} alt="tower" style={{width: '70%', height: '70%', objectFit: 'contain'}} />
+              <img src={towerImg} alt="tower" style={{width: '70%', height: '70%', objectFit: 'contain'}} />
               <div className="tower-hp">{cell.hp}/{cell.maxHp}</div>
             </div>
           )}
           {cell && cell.type === 'unit' && (
-            <div className={`unit-container ${isSelected ? 'selected-attacker' : ''} ${animClass === 'spawn' ? 'just-spawned' : ''} ${animClass === 'move' ? 'moving' : ''} ${animClass === 'attack' ? 'attacking' : ''} ${animClass === 'damage' ? 'taking-damage' : ''}`} style={{width: '80%', height: '80%', background: cell.owner === socket.id ? '#3498db' : '#e74c3c', borderRadius: '50%', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
+            <div className={`unit-container ${isSelected ? 'selected-attacker' : ''} ${animClass === 'spawn' ? 'just-spawned' : ''} ${animClass === 'move' ? 'moving' : ''} ${animClass === 'attack' ? 'attacking' : ''} ${animClass === 'damage' ? 'taking-damage' : ''} ${isDestroyed ? 'unit-destroyed' : ''}`} style={{width: '80%', height: '80%', background: cell.owner === socket.id ? '#3498db' : '#e74c3c', borderRadius: '50%', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
               <img src={getImageForCard(cell.id)} alt="unit" style={{width: '70%', height: '70%', objectFit: 'contain'}} />
               <div className="unit-hp-bar">
                 <div className={`unit-hp-fill ${getHPClass(cell.hp, cell.maxHp)}`} style={{width: `${(cell.hp / cell.maxHp) * 100}%`}}></div>
