@@ -208,3 +208,14 @@
   line-height: 1.4;
   color: #ddd;
 }
+
+.no-abilities {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  color: #7f8c8d;
+  font-style: italic;
+  font-size: 1.1rem;
+  text-align: center;
+}

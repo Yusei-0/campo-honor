@@ -100,8 +100,8 @@ module.exports = (io, socket) => {
     game.board[to.r][to.c] = unit;
     game.board[from.r][from.c] = null;
 
-    console.log("[MOVE] Unit moved, switching turn");
-    switchTurn(game);
+    console.log("[MOVE] Unit moved, turn continues");
+    // switchTurn(game); // Removed auto turn switch for move
     emitGameUpdate(game);
   });
 

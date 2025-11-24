@@ -62,16 +62,24 @@ const Card = ({ card }) => {
           </div>
         </div>
         <div className="card-back">
-          <h3 className="abilities-title">Habilidades</h3>
-          {card.abilities.map((ability, index) => (
-            <div key={index} className="ability">
-              <div className="ability-name">
-                {ability.name}
-                <span className="ability-cost">⚡ {ability.energyCost}</span>
-              </div>
-              <div className="ability-effect">{ability.effect}</div>
+          {card.abilities && card.abilities.length > 0 ? (
+            <>
+              <h3 className="abilities-title">Habilidades</h3>
+              {card.abilities.map((ability, index) => (
+                <div key={index} className="ability">
+                  <div className="ability-name">
+                    {ability.name}
+                    <span className="ability-cost">⚡ {ability.energyCost}</span>
+                  </div>
+                  <div className="ability-effect">{ability.effect}</div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <div className="no-abilities">
+              <p>Sin habilidades especiales</p>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

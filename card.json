@@ -1,145 +1,86 @@
 [
   {
-    "id": "card_knight_01",
+    "id": "card_knight",
     "name": "Caballero Real",
-    "type": "melee",
-    "maxHp": 22,
-    "attack": 6,
-    "defense": 3,
+    "cost": 3,
+    "attack": 8,
+    "defense": 2,
     "range": 1,
     "speed": 3,
-    "cost": 3,
-    "isRanged": false,
-    "abilities": [
-      {
-        "name": "Carga del Caballero",
-        "energyCost": 2,
-        "effect": "Aumenta velocidad +2 este turno y si termina adyacente inflige +3 daño adicional."
-      }
-    ]
-  },
-  {
-    "id": "card_archer_01",
-    "name": "Arquero del Bosque",
-    "type": "ranged",
-    "maxHp": 13,
-    "attack": 5,
-    "defense": 1,
-    "range": 3,
-    "speed": 2,
-    "cost": 2,
-    "isRanged": true,
-    "abilities": [
-      {
-        "name": "Lluvia de Flechas",
-        "energyCost": 3,
-        "effect": "Ataque en área 3x1 en línea; se aplica restricción de no atacar si se movió."
-      }
-    ]
-  },
-  {
-    "id": "card_mage_01",
-    "name": "Mago Arcano",
-    "type": "support ranged",
-    "maxHp": 14,
-    "attack": 6,
-    "defense": 1,
-    "range": 3,
-    "speed": 2,
-    "cost": 4,
-    "isRanged": true,
-    "abilities": [
-      {
-        "name": "Bola de Fuego",
-        "energyCost": 3,
-        "effect": "Daño directo ignorando defensa en rango 3."
-      },
-      {
-        "name": "Fragmentar Realidad",
-        "energyCost": 4,
-        "effect": "Teletransporta una unidad aliada dentro de 4 casillas."
-      }
-    ]
-  },
-  {
-    "id": "card_shield_01",
-    "name": "Escudero Defensor",
-    "type": "melee tank",
-    "maxHp": 28,
-    "attack": 4,
-    "defense": 4,
-    "range": 1,
-    "speed": 2,
-    "cost": 3,
-    "isRanged": false,
-    "abilities": [
-      {
-        "name": "Muralla de Acero",
-        "energyCost": 2,
-        "effect": "Aumenta defensa en +4 durante 2 turnos."
-      }
-    ]
-  },
-  {
-    "id": "card_lancer_01",
-    "name": "Lancero de Caballería",
-    "type": "melee",
-    "maxHp": 16,
-    "attack": 7,
-    "defense": 1,
-    "range": 1,
-    "speed": 4,
-    "cost": 3,
-    "isRanged": false,
-    "abilities": [
-      {
-        "name": "Estocada",
-        "energyCost": 2,
-        "effect": "Permite atacar después de mover incluso al máximo alcance, pero con -1 daño."
-      }
-    ]
-  },
-  {
-    "id": "card_catapult_01",
-    "name": "Catapulta de Asedio",
-    "type": "siege",
     "maxHp": 18,
-    "attack": 10,
-    "defense": 1,
-    "range": 4,
-    "speed": 1,
-    "cost": 5,
-    "isRanged": true,
-    "abilities": [
-      {
-        "name": "Bomba de Asedio",
-        "energyCost": 5,
-        "effect": "Daño +5 contra torres y +2 contra unidades en área 1 casilla."
-      }
-    ]
+    "description": "Equilibrado y valiente.",
+    "isRanged": false
   },
   {
-    "id": "card_healer_01",
-    "name": "Sanador del Reino",
-    "type": "support",
+    "id": "card_archer",
+    "name": "Arquero del Bosque",
+    "cost": 2,
+    "attack": 6,
+    "defense": 0,
+    "range": 3,
+    "speed": 2,
+    "maxHp": 10,
+    "description": "Ataque a distancia letal.",
+    "isRanged": true
+  },
+  {
+    "id": "card_mage",
+    "name": "Mago Arcano",
+    "cost": 4,
+    "attack": 9,
+    "defense": 0,
+    "range": 3,
+    "speed": 2,
+    "maxHp": 12,
+    "description": "Daño mágico devastador.",
+    "isRanged": true
+  },
+  {
+    "id": "card_shield",
+    "name": "Escudero Defensor",
+    "cost": 3,
+    "attack": 3,
+    "defense": 5,
+    "range": 1,
+    "speed": 2,
+    "maxHp": 24,
+    "description": "Tanque con alta defensa.",
+    "isRanged": false
+  },
+  {
+    "id": "card_lancer",
+    "name": "Lancero de Caballería",
+    "cost": 3,
+    "attack": 9,
+    "defense": 1,
+    "range": 2,
+    "speed": 4,
+    "maxHp": 14,
+    "description": "Rápido y con alcance medio.",
+    "isRanged": false
+  },
+  {
+    "id": "card_catapult",
+    "name": "Catapulta de Asedio",
+    "cost": 5,
+    "attack": 15,
+    "defense": 0,
+    "range": 5,
+    "speed": 1,
     "maxHp": 15,
+    "description": "Lento pero destructor de torres.",
+    "isRanged": true
+  },
+  {
+    "id": "card_healer",
+    "name": "Sanador del Reino",
+    "cost": 3,
     "attack": 2,
     "defense": 1,
     "range": 2,
     "speed": 2,
-    "cost": 3,
-    "isRanged": true,
-    "abilities": [
-      {
-        "name": "Curación",
-        "energyCost": 3,
-        "effect": "Restaura 7HP a una unidad aliada dentro de 2 casillas."
-      },
-      {
-        "name": "Oración Sagrada",
-        "energyCost": 4,
-        "effect": "Unidades aliadas en área 3x3 recuperan +3HP."
-      }
-    ]
+    "maxHp": 14,
+    "description": "Apoyo vital para las tropas.",
+    "isRanged": true
   }
 ]
