@@ -44,14 +44,23 @@ const GameScreen = ({ gameData }) => {
   const [showTurnBanner, setShowTurnBanner] = useState(false);
   const [turnBannerText, setTurnBannerText] = useState('');
   const [animatingCells, setAnimatingCells] = useState({});
+  const [attackCinematic, setAttackCinematic] = useState(null);
 
   useEffect(() => {
     if (!socket) return;
+    
+    socket.on('attack_result', (data) => {
+      setAttackCinematic(data);
+      playSound('attack'); 
+      setTimeout(() => {
+        setAttackCinematic(null);
+      }, 2500); 
+    });
+
     socket.on('game_update', (data) => {
       const wasTurn = gameState.turn;
       const isTurn = data.turn;
       
-      // Show turn banner when turn changes
       if (wasTurn !== isTurn) {
         setTurnBannerText(isTurn ? '¡TU TURNO!' : 'TURNO DEL OPONENTE');
         setShowTurnBanner(true);
@@ -69,6 +78,7 @@ const GameScreen = ({ gameData }) => {
     return () => {
       socket.off('game_update');
       socket.off('game_over');
+      socket.off('attack_result');
     };
   }, [socket, gameState.turn]);
 
@@ -125,20 +135,12 @@ const GameScreen = ({ gameData }) => {
   const { hand, energy, opponent, turn, board, player1, player2 } = gameState;
   const isFlipped = socket.id === gameState.player2?.id;
 
-  // Transform logical coordinates to visual coordinates and vice versa
   const toVisual = (r, c) => isFlipped ? { r: 7 - r, c: 6 - c } : { r, c };
   const toLogical = (r, c) => isFlipped ? { r: 7 - r, c: 6 - c } : { r, c };
 
   const getValidCells = () => {
     const valid = {};
     if (mode === 'summon' && selectedCardIndex !== null) {
-      const spawnRow = isFlipped ? 1 : 6; // Visual spawn row (Logical 6 for P1, Logical 1 for P2... wait. P2 spawns at logical 1? Let's check constants)
-      // Actually, let's just check logical validity and map to visual
-      const logicalSpawnRow = isFlipped ? 1 : 6; // Assuming P2 spawns at top (logical 1) and P1 at bottom (logical 6)
-      // Wait, let's check constants/game.js if possible, or assume standard.
-      // Standard: P1 row 6, P2 row 1.
-      // If isFlipped (P2), logical row 1 is visual row 7-1 = 6. So visually it's always row 6.
-      
       const startR = isFlipped ? 1 : 6;
       for (let c = 0; c < board[0].length; c++) {
         if (!board[startR][c]) {
@@ -191,22 +193,20 @@ const GameScreen = ({ gameData }) => {
     playSound('click');
   };
 
-  // Helper to get cell content for rendering
   const renderCell = (visualR, visualC) => {
       const { r, c } = toLogical(visualR, visualC);
       const cell = board[r][c];
-      const cellKey = `${visualR}-${visualC}`; // Use visual coordinates for keys/selection
+      const cellKey = `${visualR}-${visualC}`; 
       const isValid = validCells[cellKey];
       
-      // Check if this cell is the selected unit (need to compare logical coords)
       const isSelected = selectedUnitPos && selectedUnitPos.r === r && selectedUnitPos.c === c;
-      const animClass = animatingCells[`${r}-${c}`]; // Animation keys use logical coords
+      const animClass = animatingCells[`${r}-${c}`]; 
 
       return (
         <div 
           key={cellKey} 
           className={`board-cell ${isValid === 'spawn' ? 'valid-spawn' : ''} ${isValid === 'move' ? 'valid-move' : ''} ${isValid === 'attack' ? 'in-attack-range' : ''}`}
-          onClick={() => handleBoardClickVisual(visualR, visualC)} // Pass visual coords, handler will convert
+          onClick={() => handleBoardClickVisual(visualR, visualC)} 
         >
           {cell && cell.type === 'tower' && (
             <div className={`tower-container ${animClass === 'damage' ? 'taking-damage' : ''}`} style={{width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
@@ -230,7 +230,6 @@ const GameScreen = ({ gameData }) => {
       );
   };
 
-  // Update handleBoardClick to accept visual coords and convert
   const handleBoardClickVisual = (visualR, visualC) => {
       const { r, c } = toLogical(visualR, visualC);
       handleBoardClick(r, c);
@@ -238,6 +237,25 @@ const GameScreen = ({ gameData }) => {
 
   return (
     <div className="game-screen-layout">
+      {attackCinematic && (
+        <div className="attack-cinematic-overlay">
+          <div className="cinematic-content">
+            <div className={`cinematic-card attacker ${attackCinematic.attackerOwner === socket.id ? 'ally' : 'enemy'}`}>
+              <img src={getImageForCard(attackCinematic.attackerId)} alt="Attacker" />
+              <div className="cinematic-label">ATACANTE</div>
+            </div>
+            
+            <div className="cinematic-vs">VS</div>
+            
+            <div className={`cinematic-card target ${attackCinematic.targetOwner === socket.id ? 'ally' : 'enemy'} ${attackCinematic.isKill ? 'destroyed' : 'hit'}`}>
+              <img src={attackCinematic.targetId === 'tower' ? (attackCinematic.targetOwner === socket.id ? towerGoodImg : towerBadImg) : getImageForCard(attackCinematic.targetId)} alt="Target" />
+              <div className="cinematic-label">DEFENSOR</div>
+              <div className="cinematic-damage">-{attackCinematic.damage}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="game-main-area">
         {showTurnBanner && <div className="turn-banner">{turnBannerText}</div>}
         
@@ -253,7 +271,6 @@ const GameScreen = ({ gameData }) => {
 
         <div className="game-board-container">
             <div className="game-board">
-            {/* Render 8 rows x 7 cols */}
             {Array(8).fill(0).map((_, r) => 
                 Array(7).fill(0).map((_, c) => renderCell(r, c))
             )}
@@ -287,7 +304,6 @@ const GameScreen = ({ gameData }) => {
         <button className="end-turn-btn" onClick={handleEndTurn} disabled={!turn}>Terminar Turno</button>
       </div>
 
-      {/* Side Panel */}
       <div className="game-side-panel">
         <h3 className="panel-title">Detalles</h3>
         {selectedCardData ? (

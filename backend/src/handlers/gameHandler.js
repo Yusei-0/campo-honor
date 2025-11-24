@@ -149,6 +149,22 @@ module.exports = (io, socket) => {
     }
 
     console.log("[ATTACK] Attack completed, switching turn");
+
+    // Emit cinematic event to both players
+    const attackResult = {
+      attackerId: attacker.id,
+      targetId: target.type === "unit" ? target.id : "tower",
+      damage: damage,
+      isKill: target.hp <= 0,
+      from: from,
+      to: to,
+      attackerOwner: attacker.owner,
+      targetOwner: target.owner,
+    };
+
+    io.to(game.player1.socket.id).emit("attack_result", attackResult);
+    io.to(game.player2.socket.id).emit("attack_result", attackResult);
+
     switchTurn(game);
     emitGameUpdate(game);
   });
