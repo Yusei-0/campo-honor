@@ -4,7 +4,7 @@ import { useSocket } from '../context/SocketContext';
 import { useSound } from '../context/SoundContext';
 
 const MatchmakingScreen = ({ onBack, onNavigate }) => {
-  const socket = useSocket();
+  const { socket } = useSocket();
   const { playSound } = useSound();
   const [playerName, setPlayerName] = useState('');
   const [status, setStatus] = useState('idle'); // 'idle', 'searching', 'matched', 'waiting_opponent'

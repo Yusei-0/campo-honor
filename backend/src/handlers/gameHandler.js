@@ -1,4 +1,6 @@
 const { activeGames } = require("../state/gameState");
+const { computeBestMove } = require("../ai/aiEngine");
+const { SPAWN_ZONES } = require("../constants/game");
 
 module.exports = (io, socket) => {
   const emitGameUpdate = (game) => {
@@ -9,24 +11,136 @@ module.exports = (io, socket) => {
       player2Id: game.player2.id,
     };
 
-    io.to(game.player1.socket.id).emit("game_update", {
-      ...commonData,
-      hand: game.player1.hand,
-      energy: game.player1.energy,
-      turn: game.turn === game.player1.id,
-      opponent: game.player2.name,
-    });
-    io.to(game.player2.socket.id).emit("game_update", {
-      ...commonData,
-      hand: game.player2.hand,
-      energy: game.player2.energy,
-      turn: game.turn === game.player2.id,
-      opponent: game.player1.name,
-    });
+    // If player 2 is AI, we don't need to emit to its socket (it's a mock)
+    // But we must emit to Player 1
+    if (game.player1.socket && game.player1.socket.emit) {
+      io.to(game.player1.socket.id).emit("game_update", {
+        ...commonData,
+        hand: game.player1.hand,
+        energy: game.player1.energy,
+        turn: game.turn === game.player1.id,
+        opponent: game.player2.name,
+      });
+    }
+
+    if (game.player2.socket && game.player2.socket.emit) {
+      io.to(game.player2.socket.id).emit("game_update", {
+        ...commonData,
+        hand: game.player2.hand,
+        energy: game.player2.energy,
+        turn: game.turn === game.player2.id,
+        opponent: game.player1.name,
+      });
+    }
+  };
+
+  const executeAIMove = (game) => {
+    if (!game.active) return; // Safety check
+
+    const move = computeBestMove(game, game.turn);
+    console.log("[AI] Decided move:", move.type);
+
+    if (move.type === "end_turn") {
+      console.log("[AI] Ending turn");
+      switchTurn(game);
+      emitGameUpdate(game);
+      return;
+    }
+
+    if (move.type === "summon") {
+      const player = game.player2; // AI is always P2 for now
+      const { cardIndex, target } = move;
+      const cardId = player.hand[cardIndex];
+      const cardData = game.cardsData.find((c) => c.id === cardId);
+
+      player.energy -= cardData.cost;
+      player.hand.splice(cardIndex, 1);
+
+      game.board[target.r][target.c] = {
+        type: "unit",
+        owner: player.id,
+        id: cardId,
+        hp: cardData.maxHp,
+        maxHp: cardData.maxHp,
+        attack: cardData.attack,
+        defense: cardData.defense,
+        range: cardData.range,
+        speed: cardData.speed,
+        isRanged: cardData.isRanged,
+        hasMoved: false,
+        hasAttacked: false,
+      };
+
+      console.log("[AI] Summoned unit");
+      switchTurn(game);
+      emitGameUpdate(game);
+      return;
+    }
+
+    if (move.type === "move") {
+      const { from, to } = move;
+      const unit = game.board[from.r][from.c];
+      unit.hasMoved = true;
+      game.board[to.r][to.c] = unit;
+      game.board[from.r][from.c] = null;
+
+      console.log("[AI] Moved unit");
+      emitGameUpdate(game);
+      // Move doesn't end turn, so AI thinks again after delay
+      setTimeout(() => executeAIMove(game), 1000);
+      return;
+    }
+
+    if (move.type === "attack") {
+      const { from, to } = move;
+      const attacker = game.board[from.r][from.c];
+      const target = game.board[to.r][to.c];
+
+      const damage = Math.max(1, attacker.attack - (target.defense || 0));
+      target.hp -= damage;
+      attacker.hasAttacked = true;
+
+      const attackResult = {
+        attackerId: attacker.id,
+        targetId: target.type === "unit" ? target.id : "tower",
+        damage: damage,
+        isKill: target.hp <= 0,
+        from: from,
+        to: to,
+        attackerOwner: attacker.owner,
+        targetOwner: target.owner,
+      };
+
+      // Emit cinematic
+      io.to(game.player1.socket.id).emit("attack_result", attackResult);
+
+      if (target.hp <= 0) {
+        game.board[to.r][to.c] = null;
+        if (target.type === "tower") {
+          // AI Wins
+          io.to(game.player1.socket.id).emit("game_over", {
+            result: "defeat",
+            reason: "Tu torre fue destruida",
+          });
+          game.active = false; // Mark game as ended
+          delete activeGames[game.id];
+          return;
+        }
+      }
+
+      console.log("[AI] Attacked");
+      switchTurn(game);
+      emitGameUpdate(game);
+      return;
+    }
   };
 
   const switchTurn = (game) => {
+    if (game.active === false) return; // Game over check
+
     console.log("[TURN SWITCH] Before:", game.turn);
+
+    // Reset unit states for the player whose turn is ending
     for (let r = 0; r < game.board.length; r++) {
       for (let c = 0; c < game.board[r].length; c++) {
         const cell = game.board[r][c];
@@ -36,16 +150,30 @@ module.exports = (io, socket) => {
         }
       }
     }
+
+    // Switch turn
     game.turn =
       game.turn === game.player1.id ? game.player2.id : game.player1.id;
+
+    // Energy Regen
+    const activePlayer =
+      game.turn === game.player1.id ? game.player1 : game.player2;
+    if (activePlayer.energy < 10) activePlayer.energy += 1;
+
     console.log("[TURN SWITCH] After:", game.turn);
+
+    // Check if AI Turn
+    if (game.isSolo && game.turn === game.player2.id) {
+      console.log("[AI] It is AI turn, thinking...");
+      setTimeout(() => executeAIMove(game), 1500);
+    }
   };
 
   socket.on("summon_unit", ({ gameId, cardIndex, target }) => {
     const game = activeGames[gameId];
     if (!game) return;
+    game.active = true; // Ensure game is marked active
 
-    const { SPAWN_ZONES } = require("../constants/game");
     const isPlayer1 = socket.id === game.player1.id;
     const player = isPlayer1 ? game.player1 : game.player2;
 
@@ -188,11 +316,16 @@ module.exports = (io, socket) => {
           result: "victory",
           reason: "Torre enemiga destruida",
         });
-        io.to(loser).emit("game_over", {
-          result: "defeat",
-          reason: "Tu torre fue destruida",
-        });
 
+        // If loser is real player, emit defeat
+        if (game.player2.socket && game.player2.socket.emit) {
+          io.to(loser).emit("game_over", {
+            result: "defeat",
+            reason: "Tu torre fue destruida",
+          });
+        }
+
+        game.active = false;
         delete activeGames[gameId];
         return;
       }
@@ -213,7 +346,9 @@ module.exports = (io, socket) => {
     };
 
     io.to(game.player1.socket.id).emit("attack_result", attackResult);
-    io.to(game.player2.socket.id).emit("attack_result", attackResult);
+    if (game.player2.socket && game.player2.socket.emit) {
+      io.to(game.player2.socket.id).emit("attack_result", attackResult);
+    }
 
     switchTurn(game);
     emitGameUpdate(game);

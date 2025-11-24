@@ -35,7 +35,7 @@ const getHPClass = (hp, maxHp) => {
 };
 
 const GameScreen = ({ gameData }) => {
-  const socket = useSocket();
+  const { socket } = useSocket();
   const { playSound } = useSound();
   const [gameState, setGameState] = useState(gameData);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);

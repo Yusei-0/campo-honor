@@ -185,6 +185,96 @@ module.exports = (io, socket) => {
     }
   });
 
+  socket.on("start_solo_game", (playerName) => {
+    try {
+      console.log(`User ${playerName} (${socket.id}) starting solo game`);
+      const gameId = `solo_${Date.now()}_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
+
+      // Deal cards
+      const deck1 = shuffleDeck(DECK_IDS);
+      const deck2 = shuffleDeck(DECK_IDS);
+      const hand1 = deck1.slice(0, 5);
+      const hand2 = deck2.slice(0, 5);
+
+      // Initialize Board (7x8)
+      const {
+        BOARD_WIDTH,
+        BOARD_HEIGHT,
+        TOWER_HP,
+        TOWER_POSITIONS,
+        SPAWN_ZONES,
+      } = require("../constants/game");
+      const cardsData = require("../../../card.json");
+
+      const board = Array(BOARD_HEIGHT)
+        .fill(null)
+        .map(() => Array(BOARD_WIDTH).fill(null));
+
+      // Player 1 (User)
+      const player1Id = socket.id;
+      // Player 2 (AI)
+      const player2Id = `ai_${Date.now()}`;
+
+      // Place Towers
+      board[TOWER_POSITIONS.player1.r][TOWER_POSITIONS.player1.c] = {
+        type: "tower",
+        owner: player1Id,
+        hp: TOWER_HP,
+        maxHp: TOWER_HP,
+      };
+
+      board[TOWER_POSITIONS.player2.r][TOWER_POSITIONS.player2.c] = {
+        type: "tower",
+        owner: player2Id,
+        hp: TOWER_HP,
+        maxHp: TOWER_HP,
+      };
+
+      activeGames[gameId] = {
+        id: gameId,
+        active: true,
+        isSolo: true,
+        player1: {
+          id: player1Id,
+          name: playerName,
+          socket: socket,
+          hand: hand1,
+          deck: deck1.slice(5),
+          energy: 10,
+        },
+        player2: {
+          id: player2Id,
+          name: "AI Opponent",
+          socket: { id: player2Id, emit: () => {} }, // Mock socket for AI
+          hand: hand2,
+          deck: deck2.slice(5),
+          energy: 10,
+          isAI: true,
+        },
+        board: board,
+        turn: player1Id, // Player 1 starts
+        cardsData: cardsData,
+      };
+
+      // Emit game_start
+      socket.emit("game_start", {
+        gameId: gameId,
+        board: board,
+        player1Id: player1Id,
+        player2Id: player2Id,
+        hand: hand1,
+        energy: 10,
+        turn: true,
+        opponent: "AI Opponent",
+      });
+      console.log(`Solo game ${gameId} started successfully`);
+    } catch (error) {
+      console.error("Error starting solo game:", error);
+    }
+  });
+
   socket.on("disconnect", () => {
     // Remove from queue
     const index = matchmakingQueue.findIndex((p) => p.id === socket.id);
