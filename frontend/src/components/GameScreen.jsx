@@ -376,7 +376,7 @@ const GameScreen = ({ gameData }) => {
     }
 
     if (mode === 'summon' && selectedCardIndex !== null) {
-      const startR = isFlipped ? 1 : 6;
+      const startR = isFlipped ? 0 : 7;
       for (let c = 0; c < board[0].length; c++) {
         if (!board[startR][c]) {
             const visual = toVisual(startR, c);

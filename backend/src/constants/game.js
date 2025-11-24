@@ -11,8 +11,8 @@ const TOWER_POSITIONS = {
 
 // Spawn Zones (rows)
 const SPAWN_ZONES = {
-  player1: 6, // Row 6
-  player2: 1, // Row 1
+  player1: 7, // Row 6
+  player2: 0, // Row 1
 };
 
 module.exports = {

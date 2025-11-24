@@ -117,13 +117,13 @@ module.exports = (io, socket) => {
           ...match.player1,
           hand: hand1,
           deck: deck1.slice(5),
-          energy: 10,
+          energy: 15,
         },
         player2: {
           ...match.player2,
           hand: hand2,
           deck: deck2.slice(5),
-          energy: 10,
+          energy: 15,
         },
         board: board,
         turn: match.player1.id, // Player 1 starts
@@ -168,7 +168,7 @@ module.exports = (io, socket) => {
       match.player1.socket.emit("game_start", {
         ...startCommon,
         hand: hand1,
-        energy: 10,
+        energy: 15,
         turn: true,
         opponent: match.player2.name,
       });
@@ -176,7 +176,7 @@ module.exports = (io, socket) => {
       match.player2.socket.emit("game_start", {
         ...startCommon,
         hand: hand2,
-        energy: 10,
+        energy: 15,
         turn: false,
         opponent: match.player1.name,
       });
@@ -242,7 +242,7 @@ module.exports = (io, socket) => {
           socket: socket,
           hand: hand1,
           deck: deck1.slice(5),
-          energy: 10,
+          energy: 15,
         },
         player2: {
           id: player2Id,
@@ -250,7 +250,7 @@ module.exports = (io, socket) => {
           socket: { id: player2Id, emit: () => {} }, // Mock socket for AI
           hand: hand2,
           deck: deck2.slice(5),
-          energy: 10,
+          energy: 15,
           isAI: true,
         },
         board: board,
@@ -265,7 +265,7 @@ module.exports = (io, socket) => {
         player1Id: player1Id,
         player2Id: player2Id,
         hand: hand1,
-        energy: 10,
+        energy: 15,
         turn: true,
         opponent: "AI Opponent",
       });

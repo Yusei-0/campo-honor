@@ -167,7 +167,7 @@ module.exports = (io, socket) => {
     // Energy Regen
     const activePlayer =
       game.turn === game.player1.id ? game.player1 : game.player2;
-    if (activePlayer.energy < 10) activePlayer.energy += 1;
+    if (activePlayer.energy < 15) activePlayer.energy += 1;
 
     // Update buff/debuff durations
     updateBuffDurations(game);
