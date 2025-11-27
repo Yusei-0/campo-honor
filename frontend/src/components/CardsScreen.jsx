@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './CardsScreen.css';
 import cardsData from '../../../card.json';
+import { useTranslation } from 'react-i18next';
 
 // Import PNGs directly
 import knightPng from '../../cards/card_knight.png';
@@ -24,6 +25,7 @@ const getImageForCard = (card) => {
 };
 
 const Card = ({ card }) => {
+  const { t } = useTranslation();
   const imageSrc = getImageForCard(card);
 
   return (
@@ -35,35 +37,35 @@ const Card = ({ card }) => {
             <img src={imageSrc} alt={card.name} className="card-image" />
           </div>
           <div className="card-header">
-            <h3 className="card-name">{card.name}</h3>
-            <span className="card-type">{card.isRanged ? 'A Distancia' : 'Cuerpo a Cuerpo'}</span>
+            <h3 className="card-name">{t(`cards:${card.id}.name`)}</h3>
+            <span className="card-type">{card.isRanged ? t('cards.types.ranged') : t('cards.types.melee')}</span>
           </div>
           <div className="card-stats">
             <div className="stat-row">
-              <span className="stat-label">HP</span>
+              <span className="stat-label">{t('cards.stats.hp')}</span>
               <span>{card.maxHp}</span>
             </div>
             <div className="stat-row">
-              <span className="stat-label">ATK</span>
+              <span className="stat-label">{t('cards.stats.atk')}</span>
               <span>{card.attack}</span>
             </div>
             <div className="stat-row">
-              <span className="stat-label">DEF</span>
+              <span className="stat-label">{t('cards.stats.def')}</span>
               <span>{card.defense}</span>
             </div>
             <div className="stat-row">
-              <span className="stat-label">RNG</span>
+              <span className="stat-label">{t('cards.stats.rng')}</span>
               <span>{card.range}</span>
             </div>
             <div className="stat-row">
-              <span className="stat-label">SPD</span>
+              <span className="stat-label">{t('cards.stats.spd')}</span>
               <span>{card.speed}</span>
             </div>
           </div>
         </div>
         <div className="card-back">
             <div className="card-description">
-                <p>{card.description}</p>
+                <p>{t(`cards:${card.id}.description`)}</p>
             </div>
         </div>
       </div>
@@ -72,9 +74,11 @@ const Card = ({ card }) => {
 };
 
 const CardsScreen = ({ onBack }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="cards-screen">
-      <h1 className="cards-title">Galería de Cartas</h1>
+      <h1 className="cards-title">{t('cards.title')}</h1>
       <div className="cards-container">
         {cardsData.map(card => (
           <Card key={card.id} card={card} />

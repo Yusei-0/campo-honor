@@ -1,0 +1,55 @@
+{
+  "card_knight": {
+    "name": "Caballero Real",
+    "description": "Unidad equilibrada de combate cuerpo a cuerpo.",
+    "abilities": {
+      "coraje_de_acero": "Coraje de Acero"
+    }
+  },
+  "card_archer": {
+    "name": "Arquero del Bosque",
+    "description": "Unidad de ataque a distancia ágil con precisión.",
+    "abilities": {
+      "disparo_penetrante": "Disparo Penetrante"
+    }
+  },
+  "card_mage": {
+    "name": "Mago Arcano",
+    "description": "Unidad enfocada en daño mágico desde la distancia.",
+    "abilities": {
+      "bola_de_fuego": "Bola de Fuego",
+      "explosion_arcana": "Explosión Arcana"
+    }
+  },
+  "card_shield": {
+    "name": "Escudero Defensor",
+    "description": "Tanque diseñado para absorber daño en primera línea.",
+    "abilities": {
+      "muralla_de_acero": "Muralla de Acero",
+      "proteccion_del_escudo": "Protección del Escudo"
+    }
+  },
+  "card_lancer": {
+    "name": "Lancero de Caballería",
+    "description": "Unidad móvil ideal para flanqueos y ataques rápidos.",
+    "abilities": {
+      "carga_relampago": "Carga Relámpago"
+    }
+  },
+  "card_catapult": {
+    "name": "Catapulta de Asedio",
+    "description": "Unidad lenta capaz de destruir defensas y torres.",
+    "abilities": {
+      "disparo_pesado": "Disparo Pesado",
+      "tiro_de_artilleria": "Tiro de Artillería"
+    }
+  },
+  "card_healer": {
+    "name": "Sanador del Reino",
+    "description": "Unidad de apoyo que mantiene al ejército en pie.",
+    "abilities": {
+      "luz_restauradora": "Luz Restauradora",
+      "aura_de_fe": "Aura de Fe"
+    }
+  }
+}

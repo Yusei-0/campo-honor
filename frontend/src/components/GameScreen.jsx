@@ -3,6 +3,7 @@ import './GameScreen.css';
 import { useSocket } from '../context/SocketContext';
 import { useSound } from '../context/SoundContext';
 import cardsData from '../../../card.json';
+import { useTranslation } from 'react-i18next';
 
 import ActionHistory from './ActionHistory';
 
@@ -15,6 +16,7 @@ import GameOverlays from './game/GameOverlays';
 const getCardData = (cardId) => cardsData.find(c => c.id === cardId);
 
 const GameScreen = ({ gameData }) => {
+  const { t } = useTranslation();
   const { socket } = useSocket();
   const { playSound } = useSound();
   const [gameState, setGameState] = useState(gameData);
@@ -52,7 +54,7 @@ const GameScreen = ({ gameData }) => {
       
       if (wasTurn !== isTurn) {
         setTimeout(() => {
-            setTurnBannerText(isTurn ? '¡TU TURNO!' : 'TURNO DEL OPONENTE');
+            setTurnBannerText(isTurn ? t('game.turnBanner.yourTurn') : t('game.turnBanner.opponentTurn'));
             setShowTurnBanner(true);
             setTimeout(() => setShowTurnBanner(false), 2000);
         }, attackCinematic ? 3000 : 0);
@@ -83,9 +85,9 @@ const GameScreen = ({ gameData }) => {
       const isMe = data.attackerOwner === socket.id;
       addActionToHistory({
         type: 'attack',
-        player: isMe ? 'Tú' : opponent,
+        player: isMe ? t('actionHistory.you') : opponent,
         isMe: isMe,
-        attacker: attackerCard?.name || 'Unidad',
+        attacker: attackerCard?.name || t('sidePanel.unitDetails'),
         damage: data.damage
       });
       
@@ -118,10 +120,10 @@ const GameScreen = ({ gameData }) => {
       
       addActionToHistory({
         type: 'ability',
-        player: isMe ? 'Tú' : opponent,
+        player: isMe ? t('actionHistory.you') : opponent,
         isMe: isMe,
-        cardName: casterCard?.name || 'Unidad',
-        abilityName: ability?.name || 'Habilidad'
+        cardName: casterCard?.name || t('sidePanel.unitDetails'),
+        abilityName: ability?.name || t('sidePanel.abilities')
       });
       
       setTimeout(() => {
@@ -136,9 +138,9 @@ const GameScreen = ({ gameData }) => {
       
       addActionToHistory({
         type: 'summon',
-        player: isMe ? 'Tú' : opponent,
+        player: isMe ? t('actionHistory.you') : opponent,
         isMe: isMe,
-        cardName: card?.name || 'Unidad',
+        cardName: card?.name || t('sidePanel.unitDetails'),
         position: `${String.fromCharCode(65 + visual.c)}${8 - visual.r}`
       });
     });
@@ -152,9 +154,9 @@ const GameScreen = ({ gameData }) => {
 
       addActionToHistory({
         type: 'move',
-        player: isMe ? 'Tú' : opponent,
+        player: isMe ? t('actionHistory.you') : opponent,
         isMe: isMe,
-        cardName: card?.name || 'Unidad',
+        cardName: card?.name || t('sidePanel.unitDetails'),
         from: `${String.fromCharCode(65 + visualFrom.c)}${8 - visualFrom.r}`,
         to: `${String.fromCharCode(65 + visualTo.c)}${8 - visualTo.r}`
       });
@@ -533,7 +535,7 @@ const GameScreen = ({ gameData }) => {
                 className="surrender-btn"
                 onClick={() => setShowSurrenderConfirm(true)}
               >
-                🏳️ Rendirse
+                🏳️ {t('game.buttons.surrender')}
               </button>
             </div>
             <div className="opponent-hand">
@@ -556,12 +558,12 @@ const GameScreen = ({ gameData }) => {
 
         <div className={`game-bottom-bar ${turn ? 'your-turn' : ''}`}>
             <div className="player-stats">
-            <span>⚡ Energía: {energy}/10</span>
-            <span>{turn ? "🟢 TU TURNO" : "🔴 Turno Oponente"}</span>
+            <span>⚡ {t('game.stats.energy')}: {energy}/10</span>
+            <span>{turn ? `🟢 ${t('game.stats.yourTurn')}` : `🔴 ${t('game.stats.opponentTurn')}`}</span>
             {selectedUnitPos && (
                 <div style={{display: 'flex', gap: '0.5rem'}}>
-                <button onClick={() => setMode('move')} style={{background: mode === 'move' ? '#3498db' : '#555', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px', color: 'white', cursor: 'pointer', fontWeight: 'bold'}}>Mover</button>
-                <button onClick={() => setMode('attack')} style={{background: mode === 'attack' ? '#e74c3c' : '#555', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px', color: 'white', cursor: 'pointer', fontWeight: 'bold'}}>Atacar</button>
+                <button onClick={() => setMode('move')} style={{background: mode === 'move' ? '#3498db' : '#555', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px', color: 'white', cursor: 'pointer', fontWeight: 'bold'}}>{t('game.buttons.move')}</button>
+                <button onClick={() => setMode('attack')} style={{background: mode === 'attack' ? '#e74c3c' : '#555', border: 'none', padding: '0.25rem 0.5rem', borderRadius: '4px', color: 'white', cursor: 'pointer', fontWeight: 'bold'}}>{t('game.buttons.attack')}</button>
                 </div>
             )}
             </div>
@@ -574,7 +576,7 @@ const GameScreen = ({ gameData }) => {
             />
         </div>
         
-        <button className="end-turn-btn" onClick={handleEndTurn} disabled={!turn}>Terminar Turno</button>
+        <button className="end-turn-btn" onClick={handleEndTurn} disabled={!turn}>{t('game.buttons.endTurn')}</button>
       </div>
 
       <GameSidePanel 

@@ -1,7 +1,10 @@
 import React from 'react';
 import './ActionHistory.css';
+import { useTranslation } from 'react-i18next';
 
 const ActionHistory = ({ actions }) => {
+  const { t } = useTranslation();
+
   const getActionIcon = (type) => {
     switch (type) {
       case 'summon': return '✨';
@@ -25,34 +28,34 @@ const ActionHistory = ({ actions }) => {
   const formatAction = (action) => {
     const PlayerName = () => (
       <span className={action.isMe ? 'player-me' : 'player-opponent'}>
-        {action.player}
+        {action.isMe ? t('actionHistory.you') : action.player}
       </span>
     );
 
     switch (action.type) {
       case 'summon':
-        return <><PlayerName /> invocó {action.cardName} en {action.position}</>;
+        return <><PlayerName /> {t('actionHistory.actions.summoned')} {action.cardName} {t('actionHistory.actions.in')} {action.position}</>;
       case 'move':
-        return <><PlayerName /> movió {action.cardName} de {action.from} a {action.to}</>;
+        return <><PlayerName /> {t('actionHistory.actions.moved')} {action.cardName} {t('actionHistory.actions.from')} {action.from} {t('actionHistory.actions.to')} {action.to}</>;
       case 'attack':
-        return <><PlayerName /> atacó con {action.attacker} causando {action.damage} de daño</>;
+        return <><PlayerName /> {t('actionHistory.actions.attacked')} {action.attacker} {t('actionHistory.actions.causing')} {action.damage} {t('actionHistory.actions.damage')}</>;
       case 'ability':
-        return <><PlayerName /> usó {action.abilityName} con {action.cardName}</>;
+        return <><PlayerName /> {t('actionHistory.actions.used')} {action.abilityName} {t('actionHistory.actions.with')} {action.cardName}</>;
       default:
-        return action.message || 'Acción desconocida';
+        return action.message || t('actionHistory.empty');
     }
   };
 
   return (
     <div className="action-history-panel">
       <div className="action-history-header">
-        <h3>📜 Historial</h3>
+        <h3>📜 {t('actionHistory.title')}</h3>
       </div>
       <div className="action-history-list">
         {actions.length === 0 ? (
           <div className="no-actions">
-            <p>No hay acciones aún</p>
-            <span>El historial aparecerá aquí</span>
+            <p>{t('actionHistory.empty')}</p>
+            <span>{t('actionHistory.emptySubtext')}</span>
           </div>
         ) : (
           actions.map((action) => (

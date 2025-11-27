@@ -1,0 +1,199 @@
+{
+  "startScreen": {
+    "title": "Campo de Honor",
+    "playerCount": {
+      "online": "Online",
+      "player": "Jugador",
+      "players": "Jugadores"
+    },
+    "buttons": {
+      "play": "Jugar",
+      "cards": "Cartas",
+      "rules": "Reglas",
+      "settings": "Configuración",
+      "cancel": "Cancelar"
+    },
+    "modes": {
+      "solo": "Solo vs IA",
+      "online": "Online"
+    }
+  },
+  "matchmaking": {
+    "title": "Buscar Partida",
+    "nameLabel": "Tu Nombre de Guerrero",
+    "namePlaceholder": "Ej. Sir Lancelot",
+    "searchButton": "Buscar Oponente",
+    "searching": "Buscando oponente digno...",
+    "matchFound": "¡Partida Encontrada!",
+    "opponent": "Tu oponente es:",
+    "confirmButton": "Confirmar Batalla",
+    "waitingOpponent": "Esperando confirmación del oponente..."
+  },
+  "game": {
+    "turnBanner": {
+      "yourTurn": "¡TU TURNO!",
+      "opponentTurn": "TURNO DEL OPONENTE"
+    },
+    "buttons": {
+      "surrender": "Rendirse",
+      "endTurn": "Terminar Turno",
+      "move": "Mover",
+      "attack": "Atacar"
+    },
+    "stats": {
+      "energy": "Energía",
+      "yourTurn": "TU TURNO",
+      "opponentTurn": "Turno Oponente"
+    },
+    "surrender": {
+      "title": "¿Rendirse?",
+      "message": "¿Estás seguro de que quieres rendirte? Perderás la partida inmediatamente.",
+      "confirm": "Sí, Rendirse",
+      "cancel": "Cancelar"
+    },
+    "gameOver": {
+      "victory": "¡VICTORIA!",
+      "defeat": "DERROTA",
+      "returnMenu": "Volver al Menú"
+    },
+    "prompt": {
+      "attack": "Atacar",
+      "endTurn": "Terminar Turno"
+    },
+    "cinematic": {
+      "attacker": "ATACANTE",
+      "defender": "DEFENSOR",
+      "vs": "VS",
+      "casting": "LANZANDO"
+    }
+  },
+  "rules": {
+    "title": "Reglas del Juego",
+    "objective": {
+      "title": "Objetivo",
+      "description": "Tu misión es destruir la <strong>Torre Enemiga</strong> (30 HP) antes de que destruyan la tuya. Usa tus unidades sabiamente para dominar el campo de batalla."
+    },
+    "board": {
+      "title": "El Tablero",
+      "grid": "El campo de batalla es una cuadrícula de <strong>7x8</strong>.",
+      "tower": "Tu torre está en la fila trasera de tu zona.",
+      "summonZone": "Solo puedes invocar unidades en tu <strong>zona de invocación</strong> (marcada al seleccionar carta)."
+    },
+    "cards": {
+      "title": "Cartas y Energía",
+      "startingHand": "Comienzas con <strong>5 cartas</strong> en mano.",
+      "startingEnergy": "Tienes <strong>10 de Energía</strong> inicial.",
+      "energyRegen": "Recuperas <strong>+1 Energía</strong> cada turno."
+    },
+    "combat": {
+      "title": "Combate",
+      "summon": "<strong>Invocar:</strong> Gasta energía para poner una unidad en juego. Termina tu turno.",
+      "move": "<strong>Mover:</strong> Desplaza tus unidades según su velocidad. Puedes atacar después de mover.",
+      "attack": "<strong>Atacar:</strong> Inflige daño a enemigos en rango. Atacar termina tu turno.",
+      "damage": "<strong>Daño:</strong> Ataque - Defensa = Daño a Vida."
+    },
+    "restrictions": {
+      "title": "Restricciones",
+      "noTraverse": "No puedes atravesar unidades enemigas ni obstáculos.",
+      "oncePerTurn": "Cada unidad solo puede mover y atacar una vez por turno."
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "sound": "Sonido",
+    "language": "Idioma",
+    "languages": {
+      "es": "Español",
+      "en": "English"
+    }
+  },
+  "cards": {
+    "title": "Galería de Cartas",
+    "types": {
+      "melee": "Cuerpo a Cuerpo",
+      "ranged": "A Distancia"
+    },
+    "stats": {
+      "hp": "HP",
+      "atk": "ATK",
+      "def": "DEF",
+      "rng": "RNG",
+      "spd": "SPD",
+      "cost": "Costo"
+    }
+  },
+  "actionHistory": {
+    "title": "Historial",
+    "empty": "No hay acciones aún",
+    "emptySubtext": "El historial aparecerá aquí",
+    "you": "Tú",
+    "actions": {
+      "summoned": "invocó",
+      "moved": "movió",
+      "attacked": "atacó con",
+      "used": "usó",
+      "in": "en",
+      "from": "de",
+      "to": "a",
+      "causing": "causando",
+      "damage": "de daño",
+      "with": "con"
+    }
+  },
+  "sidePanel": {
+    "selectCard": "Selecciona una carta o unidad",
+    "cardDetails": "Detalles de la Carta",
+    "unitDetails": "Detalles de la Unidad",
+    "cost": "Costo",
+    "owner": "Propietario",
+    "you": "Tú",
+    "opponent": "Oponente",
+    "abilities": "Habilidades",
+    "noAbilities": "Sin habilidades",
+    "passive": "Pasiva",
+    "active": "Activa",
+    "stats": {
+      "hp": "Vida",
+      "attack": "Ataque",
+      "defense": "Defensa",
+      "range": "Rango",
+      "speed": "Velocidad"
+    },
+    "buffs": "Mejoras Activas",
+    "noBuffs": "Sin mejoras"
+  },
+  "abilities": {
+    "triggers": {
+      "onKill": "Al matar",
+      "onStartTurn": "Al inicio del turno",
+      "onBeingDamaged": "Al recibir daño"
+    },
+    "effects": {
+      "damage": "de daño",
+      "ignoresDefense": "(ignora defensa)",
+      "heal": "Cura",
+      "buff": "Mejora",
+      "debuff": "Penalización",
+      "permanent": "(permanente)",
+      "turns": "turnos",
+      "area": "Área",
+      "friendlyFire": "Daño aliado",
+      "range": "Rango"
+    },
+    "targets": {
+      "self": "Propio",
+      "ally": "Aliado",
+      "enemy": "Enemigo",
+      "allAllies": "Todos los aliados",
+      "allEnemies": "Todos los enemigos",
+      "tile": "Casilla"
+    }
+  },
+  "common": {
+    "back": "Volver al Menú",
+    "loading": "Cargando...",
+    "error": "Error",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar"
+  }
+}

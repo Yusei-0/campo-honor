@@ -1,0 +1,55 @@
+{
+  "card_knight": {
+    "name": "Royal Knight",
+    "description": "Balanced melee combat unit.",
+    "abilities": {
+      "coraje_de_acero": "Steel Courage"
+    }
+  },
+  "card_archer": {
+    "name": "Forest Archer",
+    "description": "Agile ranged attack unit with precision.",
+    "abilities": {
+      "disparo_penetrante": "Piercing Shot"
+    }
+  },
+  "card_mage": {
+    "name": "Arcane Mage",
+    "description": "Unit focused on magical damage from distance.",
+    "abilities": {
+      "bola_de_fuego": "Fireball",
+      "explosion_arcana": "Arcane Explosion"
+    }
+  },
+  "card_shield": {
+    "name": "Shield Defender",
+    "description": "Tank designed to absorb damage on the front line.",
+    "abilities": {
+      "muralla_de_acero": "Steel Wall",
+      "proteccion_del_escudo": "Shield Protection"
+    }
+  },
+  "card_lancer": {
+    "name": "Cavalry Lancer",
+    "description": "Mobile unit ideal for flanking and quick attacks.",
+    "abilities": {
+      "carga_relampago": "Lightning Charge"
+    }
+  },
+  "card_catapult": {
+    "name": "Siege Catapult",
+    "description": "Slow unit capable of destroying defenses and towers.",
+    "abilities": {
+      "disparo_pesado": "Heavy Shot",
+      "tiro_de_artilleria": "Artillery Fire"
+    }
+  },
+  "card_healer": {
+    "name": "Kingdom Healer",
+    "description": "Support unit that keeps the army standing.",
+    "abilities": {
+      "luz_restauradora": "Restorative Light",
+      "aura_de_fe": "Aura of Faith"
+    }
+  }
+}

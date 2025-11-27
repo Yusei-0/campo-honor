@@ -1,0 +1,7 @@
+{
+  "reasons": {
+    "towerDestroyed": "Torre destruida",
+    "opponentSurrendered": "El oponente se ha rendido",
+    "surrender": "Te has rendido"
+  }
+}

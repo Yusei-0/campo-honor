@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './MatchmakingScreen.css';
 import { useSocket } from '../context/SocketContext';
 import { useSound } from '../context/SoundContext';
+import { useTranslation } from 'react-i18next';
 
 const MatchmakingScreen = ({ onBack, onNavigate }) => {
+  const { t } = useTranslation();
   const { socket } = useSocket();
   const { playSound } = useSound();
   const [playerName, setPlayerName] = useState('');
@@ -59,16 +61,16 @@ const MatchmakingScreen = ({ onBack, onNavigate }) => {
   return (
     <div className="matchmaking-screen">
       <div className="matchmaking-container">
-        <h1 className="matchmaking-title">Buscar Partida</h1>
+        <h1 className="matchmaking-title">{t('matchmaking.title')}</h1>
 
         {status === 'idle' && (
           <>
             <div className="input-group">
-              <label className="input-label">Tu Nombre de Guerrero</label>
+              <label className="input-label">{t('matchmaking.nameLabel')}</label>
               <input 
                 type="text" 
                 className="name-input" 
-                placeholder="Ej. Sir Lancelot"
+                placeholder={t('matchmaking.namePlaceholder')}
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
               />
@@ -79,35 +81,35 @@ const MatchmakingScreen = ({ onBack, onNavigate }) => {
               disabled={!playerName.trim()}
               onMouseEnter={() => playSound('hover')}
             >
-              Buscar Oponente
+              {t('matchmaking.searchButton')}
             </button>
           </>
         )}
 
         {status === 'searching' && (
           <div className="status-message">
-            ⚔️ Buscando oponente digno...
+            ⚔️ {t('matchmaking.searching')}
           </div>
         )}
 
         {status === 'matched' && (
           <div className="match-found">
-            <h3>¡Partida Encontrada!</h3>
-            <p>Tu oponente es: <strong>{opponent}</strong></p>
+            <h3>{t('matchmaking.matchFound')}</h3>
+            <p>{t('matchmaking.opponent')} <strong>{opponent}</strong></p>
             <button 
               className="search-btn" 
               onClick={handleConfirm}
               style={{marginTop: '1rem', background: 'linear-gradient(135deg, #2ecc71, #27ae60)'}}
               onMouseEnter={() => playSound('hover')}
             >
-              Confirmar Batalla
+              {t('matchmaking.confirmButton')}
             </button>
           </div>
         )}
 
         {status === 'waiting_opponent' && (
           <div className="status-message">
-            ⏳ Esperando confirmación del oponente...
+            ⏳ {t('matchmaking.waitingOpponent')}
           </div>
         )}
       </div>

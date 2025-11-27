@@ -1,0 +1,199 @@
+{
+  "startScreen": {
+    "title": "Field of Honor",
+    "playerCount": {
+      "online": "Online",
+      "player": "Player",
+      "players": "Players"
+    },
+    "buttons": {
+      "play": "Play",
+      "cards": "Cards",
+      "rules": "Rules",
+      "settings": "Settings",
+      "cancel": "Cancel"
+    },
+    "modes": {
+      "solo": "Solo vs AI",
+      "online": "Online"
+    }
+  },
+  "matchmaking": {
+    "title": "Find Match",
+    "nameLabel": "Your Warrior Name",
+    "namePlaceholder": "e.g. Sir Lancelot",
+    "searchButton": "Find Opponent",
+    "searching": "Searching for worthy opponent...",
+    "matchFound": "Match Found!",
+    "opponent": "Your opponent is:",
+    "confirmButton": "Confirm Battle",
+    "waitingOpponent": "Waiting for opponent confirmation..."
+  },
+  "game": {
+    "turnBanner": {
+      "yourTurn": "YOUR TURN!",
+      "opponentTurn": "OPPONENT'S TURN"
+    },
+    "buttons": {
+      "surrender": "Surrender",
+      "endTurn": "End Turn",
+      "move": "Move",
+      "attack": "Attack"
+    },
+    "stats": {
+      "energy": "Energy",
+      "yourTurn": "YOUR TURN",
+      "opponentTurn": "Opponent's Turn"
+    },
+    "surrender": {
+      "title": "Surrender?",
+      "message": "Are you sure you want to surrender? You will lose the match immediately.",
+      "confirm": "Yes, Surrender",
+      "cancel": "Cancel"
+    },
+    "gameOver": {
+      "victory": "VICTORY!",
+      "defeat": "DEFEAT",
+      "returnMenu": "Return to Menu"
+    },
+    "prompt": {
+      "attack": "Attack",
+      "endTurn": "End Turn"
+    },
+    "cinematic": {
+      "attacker": "ATTACKER",
+      "defender": "DEFENDER",
+      "vs": "VS",
+      "casting": "CASTING"
+    }
+  },
+  "rules": {
+    "title": "Game Rules",
+    "objective": {
+      "title": "Objective",
+      "description": "Your mission is to destroy the <strong>Enemy Tower</strong> (30 HP) before they destroy yours. Use your units wisely to dominate the battlefield."
+    },
+    "board": {
+      "title": "The Board",
+      "grid": "The battlefield is a <strong>7x8</strong> grid.",
+      "tower": "Your tower is in the back row of your zone.",
+      "summonZone": "You can only summon units in your <strong>summoning zone</strong> (marked when selecting a card)."
+    },
+    "cards": {
+      "title": "Cards and Energy",
+      "startingHand": "You start with <strong>5 cards</strong> in hand.",
+      "startingEnergy": "You have <strong>10 Energy</strong> initially.",
+      "energyRegen": "You recover <strong>+1 Energy</strong> each turn."
+    },
+    "combat": {
+      "title": "Combat",
+      "summon": "<strong>Summon:</strong> Spend energy to put a unit into play. Ends your turn.",
+      "move": "<strong>Move:</strong> Move your units according to their speed. You can attack after moving.",
+      "attack": "<strong>Attack:</strong> Deal damage to enemies in range. Attacking ends your turn.",
+      "damage": "<strong>Damage:</strong> Attack - Defense = Damage to Health."
+    },
+    "restrictions": {
+      "title": "Restrictions",
+      "noTraverse": "You cannot move through enemy units or obstacles.",
+      "oncePerTurn": "Each unit can only move and attack once per turn."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "sound": "Sound",
+    "language": "Language",
+    "languages": {
+      "es": "Español",
+      "en": "English"
+    }
+  },
+  "cards": {
+    "title": "Card Gallery",
+    "types": {
+      "melee": "Melee",
+      "ranged": "Ranged"
+    },
+    "stats": {
+      "hp": "HP",
+      "atk": "ATK",
+      "def": "DEF",
+      "rng": "RNG",
+      "spd": "SPD",
+      "cost": "Cost"
+    }
+  },
+  "actionHistory": {
+    "title": "History",
+    "empty": "No actions yet",
+    "emptySubtext": "History will appear here",
+    "you": "You",
+    "actions": {
+      "summoned": "summoned",
+      "moved": "moved",
+      "attacked": "attacked with",
+      "used": "used",
+      "in": "at",
+      "from": "from",
+      "to": "to",
+      "causing": "dealing",
+      "damage": "damage",
+      "with": "with"
+    }
+  },
+  "sidePanel": {
+    "selectCard": "Select a card or unit",
+    "cardDetails": "Card Details",
+    "unitDetails": "Unit Details",
+    "cost": "Cost",
+    "owner": "Owner",
+    "you": "You",
+    "opponent": "Opponent",
+    "abilities": "Abilities",
+    "noAbilities": "No abilities",
+    "passive": "Passive",
+    "active": "Active",
+    "stats": {
+      "hp": "Health",
+      "attack": "Attack",
+      "defense": "Defense",
+      "range": "Range",
+      "speed": "Speed"
+    },
+    "buffs": "Active Buffs",
+    "noBuffs": "No buffs"
+  },
+  "abilities": {
+    "triggers": {
+      "onKill": "On kill",
+      "onStartTurn": "At turn start",
+      "onBeingDamaged": "When damaged"
+    },
+    "effects": {
+      "damage": "damage",
+      "ignoresDefense": "(ignores defense)",
+      "heal": "Heals",
+      "buff": "Buff",
+      "debuff": "Debuff",
+      "permanent": "(permanent)",
+      "turns": "turns",
+      "area": "Area",
+      "friendlyFire": "Friendly fire",
+      "range": "Range"
+    },
+    "targets": {
+      "self": "Self",
+      "ally": "Ally",
+      "enemy": "Enemy",
+      "allAllies": "All allies",
+      "allEnemies": "All enemies",
+      "tile": "Tile"
+    }
+  },
+  "common": {
+    "back": "Return to Menu",
+    "loading": "Loading...",
+    "error": "Error",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  }
+}

@@ -3,6 +3,7 @@ import { getImageForCard } from './GameBoard';
 import towerGoodImg from '../../../board/board_tower.png';
 import towerBadImg from '../../../board/board_tower_bad.png';
 import knightPng from '../../../cards/card_knight.png';
+import { useTranslation } from 'react-i18next';
 
 const GameOverlays = ({ 
   prompt, 
@@ -16,6 +17,8 @@ const GameOverlays = ({
   surrenderConfirm,
   handleSurrenderResponse
 }) => {
+  const { t } = useTranslation();
+
   return (
     <>
       {prompt && (
@@ -23,8 +26,8 @@ const GameOverlays = ({
             <div className="prompt-box">
                 <p>{prompt.message}</p>
                 <div className="prompt-buttons">
-                    <button onClick={() => handlePromptResponse("Atacar")}>⚔️ Atacar</button>
-                    <button onClick={() => handlePromptResponse("Terminar Turno")}>🛑 Terminar Turno</button>
+                    <button onClick={() => handlePromptResponse("Atacar")}>⚔️ {t('game.prompt.attack')}</button>
+                    <button onClick={() => handlePromptResponse("Terminar Turno")}>🛑 {t('game.prompt.endTurn')}</button>
                 </div>
             </div>
         </div>
@@ -32,22 +35,22 @@ const GameOverlays = ({
       {surrenderConfirm && (
         <div className="action-prompt-overlay">
             <div className="action-prompt-box">
-                <h3>¿Rendirse?</h3>
+                <h3>{t('game.surrender.title')}</h3>
                 <p style={{color: '#bdc3c7', marginBottom: '1.5rem'}}>
-                    ¿Estás seguro de que quieres rendirte? Perderás la partida inmediatamente.
+                    {t('game.surrender.message')}
                 </p>
                 <div className="prompt-options">
                     <button 
                         className="prompt-btn primary" 
                         onClick={() => handleSurrenderResponse(true)}
                     >
-                        🏳️ Sí, Rendirse
+                        🏳️ {t('game.surrender.confirm')}
                     </button>
                     <button 
                         className="prompt-btn secondary" 
                         onClick={() => handleSurrenderResponse(false)}
                     >
-                        Cancelar
+                        {t('game.surrender.cancel')}
                     </button>
                 </div>
             </div>
@@ -57,11 +60,11 @@ const GameOverlays = ({
         <div className="game-over-overlay">
           <div className="game-over-content">
             <h1 className={gameOverData.result === 'victory' ? 'victory-text' : 'defeat-text'}>
-              {gameOverData.result === 'victory' ? '¡VICTORIA!' : 'DERROTA'}
+              {gameOverData.result === 'victory' ? t('game.gameOver.victory') : t('game.gameOver.defeat')}
             </h1>
             <p className="game-over-reason">{gameOverData.reason}</p>
             <button className="return-menu-btn" onClick={() => window.location.reload()}>
-              Volver al Menú
+              {t('game.gameOver.returnMenu')}
             </button>
           </div>
         </div>
@@ -72,14 +75,14 @@ const GameOverlays = ({
           <div className="cinematic-content">
             <div className={`cinematic-card attacker ${attackCinematic.attackerOwner === socketId ? 'ally' : 'enemy'}`}>
               <img src={getImageForCard(attackCinematic.attackerId)} alt="Attacker" />
-              <div className="cinematic-label">ATACANTE</div>
+              <div className="cinematic-label">{t('game.cinematic.attacker')}</div>
             </div>
             
-            <div className="cinematic-vs">VS</div>
+            <div className="cinematic-vs">{t('game.cinematic.vs')}</div>
             
             <div className={`cinematic-card target ${attackCinematic.targetOwner === socketId ? 'ally' : 'enemy'} ${attackCinematic.isKill ? 'destroyed' : 'hit'}`}>
               <img src={attackCinematic.targetId === 'tower' ? (attackCinematic.targetOwner === socketId ? towerGoodImg : towerBadImg) : getImageForCard(attackCinematic.targetId)} alt="Target" />
-              <div className="cinematic-label">DEFENSOR</div>
+              <div className="cinematic-label">{t('game.cinematic.defender')}</div>
               <div className="cinematic-damage">-{attackCinematic.damage}</div>
             </div>
           </div>
@@ -97,7 +100,7 @@ const GameOverlays = ({
               {/* Caster Card */}
               <div className="ability-caster-card">
                 <img src={casterCard ? getImageForCard(casterCard.id) : knightPng} alt="Caster" />
-                <div className="ability-caster-label">LANZANDO</div>
+                <div className="ability-caster-label">{t('game.cinematic.casting')}</div>
               </div>
               
               {/* Ability Name */}
