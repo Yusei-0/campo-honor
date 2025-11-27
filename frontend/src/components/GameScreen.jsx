@@ -31,6 +31,14 @@ const GameScreen = ({ gameData }) => {
   const [selectedAbility, setSelectedAbility] = useState(null); // {unitPos, abilityIndex, ability}
   const [abilityCinematic, setAbilityCinematic] = useState(null);
   const [actionHistory, setActionHistory] = useState([]);
+  const [showSurrenderConfirm, setShowSurrenderConfirm] = useState(false);
+
+  const handleSurrenderResponse = (confirmed) => {
+      setShowSurrenderConfirm(false);
+      if (confirmed) {
+          socket.emit('surrender', { gameId: gameState.gameId });
+      }
+  };
 
   useEffect(() => {
     if (!socket) return;
@@ -503,6 +511,8 @@ const GameScreen = ({ gameData }) => {
         socketId={socket.id}
         board={board}
         getCardData={getCardData}
+        surrenderConfirm={showSurrenderConfirm}
+        handleSurrenderResponse={handleSurrenderResponse}
       />
 
       {/* Left Panel - Action History */}
@@ -517,6 +527,14 @@ const GameScreen = ({ gameData }) => {
             <div className="player-info">
             <div className="avatar" style={{background: '#e74c3c'}}></div>
             <span className="player-name">{opponent}</span>
+            </div>
+            <div className="top-bar-center">
+              <button 
+                className="surrender-btn"
+                onClick={() => setShowSurrenderConfirm(true)}
+              >
+                🏳️ Rendirse
+              </button>
             </div>
             <div className="opponent-hand">
             {hand && hand.map((_, i) => <div key={i} className="card-back-mini"></div>)}

@@ -508,7 +508,22 @@ module.exports = (io, socket) => {
     if (game.turn !== socket.id) return;
 
     console.log("[END_TURN] Manual turn end");
-    switchTurn(game);
-    emitGameUpdate(game);
+
+    // Notify winner
+    if (winner.socket && winner.socket.emit) {
+      io.to(winner.socket.id).emit("game_over", {
+        result: "victory",
+        reason: "El oponente se ha rendido",
+      });
+    }
+
+    // Notify loser (the one who surrendered)
+    io.to(socket.id).emit("game_over", {
+      result: "defeat",
+      reason: "Te has rendido",
+    });
+
+    game.active = false;
+    delete activeGames[gameId];
   });
 };

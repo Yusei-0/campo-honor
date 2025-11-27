@@ -12,7 +12,9 @@ const GameOverlays = ({
   handlePromptResponse, 
   socketId,
   board,
-  getCardData 
+  getCardData,
+  surrenderConfirm,
+  handleSurrenderResponse
 }) => {
   return (
     <>
@@ -23,6 +25,30 @@ const GameOverlays = ({
                 <div className="prompt-buttons">
                     <button onClick={() => handlePromptResponse("Atacar")}>⚔️ Atacar</button>
                     <button onClick={() => handlePromptResponse("Terminar Turno")}>🛑 Terminar Turno</button>
+                </div>
+            </div>
+        </div>
+      )}
+      {surrenderConfirm && (
+        <div className="action-prompt-overlay">
+            <div className="action-prompt-box">
+                <h3>¿Rendirse?</h3>
+                <p style={{color: '#bdc3c7', marginBottom: '1.5rem'}}>
+                    ¿Estás seguro de que quieres rendirte? Perderás la partida inmediatamente.
+                </p>
+                <div className="prompt-options">
+                    <button 
+                        className="prompt-btn primary" 
+                        onClick={() => handleSurrenderResponse(true)}
+                    >
+                        🏳️ Sí, Rendirse
+                    </button>
+                    <button 
+                        className="prompt-btn secondary" 
+                        onClick={() => handleSurrenderResponse(false)}
+                    >
+                        Cancelar
+                    </button>
                 </div>
             </div>
         </div>

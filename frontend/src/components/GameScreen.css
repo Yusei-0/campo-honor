@@ -798,6 +798,218 @@ button, .hand-card, .board-cell, a {
   80% { transform: translateX(10px); }
 }
 
+@keyframes cardDestroy {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2) rotate(10deg); opacity: 0.8; filter: grayscale(1); }
+  100% { transform: scale(0) rotate(180deg); opacity: 0; }
+}
+
+@keyframes damagePop {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* Ability Cinematic */
+.cinematic-card.ability-user {
+  border-color: #9b59b6;
+  animation: slideInLeft 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), castPulse 0.5s ease-in-out 1s;
+}
+
+.cinematic-card.ability-target {
+  border-color: #f1c40f;
+  animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cinematic-effect-text {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 4rem;
+  color: #2ecc71;
+  text-shadow: 3px 3px 0 #000, 0 0 15px #2ecc71;
+  z-index: 10;
+  animation: damagePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1.1s forwards;
+  white-space: nowrap;
+}
+
+@keyframes castPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(155, 89, 182, 0); }
+  50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(155, 89, 182, 0.8); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(155, 89, 182, 0); }
+}
+
+/* Action Prompt Overlay */
+.action-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.action-prompt-box {
+  background: #2c3e50;
+  border: 4px solid #f1c40f;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  max-width: 400px;
+  width: 90%;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.action-prompt-box h3 {
+  font-family: 'Luckiest Guy', cursive;
+  color: #f1c40f;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.prompt-options {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.prompt-btn {
+  padding: 0.8rem 1.5rem;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.prompt-btn:hover {
+  transform: translateY(-2px);
+}
+
+.prompt-btn.primary {
+  background: #e74c3c;
+  color: white;
+  box-shadow: 0 4px 0 #c0392b;
+}
+
+.prompt-btn.secondary {
+  background: #95a5a6;
+  color: white;
+  box-shadow: 0 4px 0 #7f8c8d;
+}
+
+/* Game Over Overlay */
+.game-over-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 1s ease-out;
+}
+
+.game-over-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 8rem;
+  margin-bottom: 1rem;
+  animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s backwards;
+}
+
+.game-over-title.victory {
+  color: #f1c40f;
+  text-shadow: 0 0 30px rgba(241, 196, 15, 0.5);
+}
+
+.game-over-title.defeat {
+  color: #e74c3c;
+  text-shadow: 0 0 30px rgba(231, 76, 60, 0.5);
+}
+
+.game-over-reason {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.5rem;
+  color: #bdc3c7;
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 1.5s forwards;
+}
+
+.return-home-btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+  transition: all 0.3s;
+  opacity: 0;
+  animation: slideUp 0.5s ease-out 2s forwards;
+}
+
+.return-home-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.surrender-btn {
+  background: rgba(231, 76, 60, 0.2);
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.surrender-btn:hover {
+  background: rgba(231, 76, 60, 0.8);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.surrender-btn:active {
+  transform: translateY(1px);
+}
+
+.top-bar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+
 @keyframes damagePop {
   0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
   50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
