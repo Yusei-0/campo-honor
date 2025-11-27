@@ -10,7 +10,7 @@ const gameHandler = require("./src/handlers/gameHandler");
 // Enable CORS for frontend connection
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // Vite default port
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173", // Vite default port
     methods: ["GET", "POST"],
   },
 });
@@ -31,7 +31,7 @@ io.on("connection", (socket) => {
   });
 });
 
-let PORT = 3000;
+let PORT = process.env.PORT || 3000;
 
 const startServer = (port) => {
   server
