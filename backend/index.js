@@ -8,11 +8,25 @@ const matchmakingHandler = require("./src/handlers/matchmakingHandler");
 const gameHandler = require("./src/handlers/gameHandler");
 
 // Enable CORS for frontend connection
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  next();
+});
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173", // Vite default port
+    origin: "*", // Allow all origins
     methods: ["GET", "POST"],
   },
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
 app.get("/", (req, res) => {

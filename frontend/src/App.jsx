@@ -8,6 +8,7 @@ import GameScreen from './components/GameScreen';
 import { SoundProvider } from './context/SoundContext';
 import { SocketProvider } from './context/SocketContext';
 import SoloLoading from './components/SoloLoading';
+import ServerAwakener from './components/ServerAwakener';
 import './App.css';
 
 function App() {
@@ -22,13 +23,15 @@ function App() {
   return (
     <SocketProvider>
       <SoundProvider>
-        {currentScreen === 'start' && <StartScreen onNavigate={navigateTo} />}
-        {currentScreen === 'rules' && <RulesScreen onBack={() => navigateTo('start')} />}
-        {currentScreen === 'cards' && <CardsScreen onBack={() => navigateTo('start')} />}
-        {currentScreen === 'settings' && <SettingsScreen onBack={() => navigateTo('start')} />}
-        {currentScreen === 'matchmaking' && <MatchmakingScreen onBack={() => navigateTo('start')} onNavigate={navigateTo} />}
-        {currentScreen === 'solo' && <SoloLoading onNavigate={navigateTo} />}
-        {currentScreen === 'game' && <GameScreen gameData={gameData} />}
+        <ServerAwakener>
+          {currentScreen === 'start' && <StartScreen onNavigate={navigateTo} />}
+          {currentScreen === 'rules' && <RulesScreen onBack={() => navigateTo('start')} />}
+          {currentScreen === 'cards' && <CardsScreen onBack={() => navigateTo('start')} />}
+          {currentScreen === 'settings' && <SettingsScreen onBack={() => navigateTo('start')} />}
+          {currentScreen === 'matchmaking' && <MatchmakingScreen onBack={() => navigateTo('start')} onNavigate={navigateTo} />}
+          {currentScreen === 'solo' && <SoloLoading onNavigate={navigateTo} />}
+          {currentScreen === 'game' && <GameScreen gameData={gameData} />}
+        </ServerAwakener>
       </SoundProvider>
     </SocketProvider>
   );
