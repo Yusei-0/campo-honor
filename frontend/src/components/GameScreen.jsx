@@ -3,37 +3,16 @@ import './GameScreen.css';
 import { useSocket } from '../context/SocketContext';
 import { useSound } from '../context/SoundContext';
 import cardsData from '../../../card.json';
-import towerGoodImg from '../../board/board_tower.png';
-import towerBadImg from '../../board/board_tower_bad.png';
-import knightPng from '../../cards/card_knight.png';
-import archerPng from '../../cards/card_archer.png';
-import magePng from '../../cards/card_mage.png';
-import shieldPng from '../../cards/card_shield.png';
-import lancerPng from '../../cards/card_lancer.png';
-import catapultPng from '../../cards/card_catapult.png';
-import healerPng from '../../cards/card_healer.png';
+
 import ActionHistory from './ActionHistory';
 
-const getImageForCard = (cardId) => {
-  if (!cardId) return knightPng;
-  if (cardId.includes('knight')) return knightPng;
-  if (cardId.includes('archer')) return archerPng;
-  if (cardId.includes('mage')) return magePng;
-  if (cardId.includes('shield')) return shieldPng;
-  if (cardId.includes('lancer')) return lancerPng;
-  if (cardId.includes('catapult')) return catapultPng;
-  if (cardId.includes('healer')) return healerPng;
-  return knightPng;
-};
+// New Components
+import GameBoard from './game/GameBoard';
+import GameHand from './game/GameHand';
+import GameSidePanel from './game/GameSidePanel';
+import GameOverlays from './game/GameOverlays';
 
 const getCardData = (cardId) => cardsData.find(c => c.id === cardId);
-
-const getHPClass = (hp, maxHp) => {
-  const percentage = (hp / maxHp) * 100;
-  if (percentage > 50) return 'high';
-  if (percentage > 25) return 'medium';
-  return 'low';
-};
 
 const GameScreen = ({ gameData }) => {
   const { socket } = useSocket();
@@ -503,60 +482,6 @@ const GameScreen = ({ gameData }) => {
       handleBoardClick(r, c);
   };
 
-  const renderCell = (visualR, visualC) => {
-      const { r, c } = toLogical(visualR, visualC);
-      const cell = board[r][c];
-      const cellKey = `${visualR}-${visualC}`; 
-      const isValid = validCells[cellKey];
-      
-      const isSelected = selectedUnitPos && selectedUnitPos.r === r && selectedUnitPos.c === c;
-      const animClass = animatingCells[`${r}-${c}`]; 
-      const isDestroyed = destroyedCell && destroyedCell.r === r && destroyedCell.c === c;
-
-      // Tower Image Logic:
-      // Bind image to the owner's identity (P1 = Good/Blue, P2 = Bad/Red)
-      // This ensures P2 sees their specific tower (Red) at the bottom.
-      const towerImg = cell?.owner === gameState.player1Id ? towerGoodImg : towerBadImg;
-
-      return (
-        <div 
-          key={cellKey} 
-          className={`board-cell ${isValid === 'spawn' ? 'valid-spawn' : ''} ${isValid === 'move' ? 'valid-move' : ''} ${isValid === 'attack' ? 'in-attack-range' : ''} ${isValid?.startsWith('ability-') ? isValid : ''}`}
-          onClick={() => handleBoardClickVisual(visualR, visualC)} 
-        >
-          {/* Coordinates Overlay: 
-              P1 (Standard): Visual 7 (Bottom) is Rank 1. 
-              P2 (Flipped): Visual 7 (Bottom) is Rank 8. 
-          */}
-          {visualC === 0 && <div className="coord-rank">{isFlipped ? visualR + 1 : 8 - visualR}</div>}
-          {/* Files: A-G. 
-              P1: Visual 0 is A. 
-              P2: Visual 0 is G. 
-          */}
-          {visualR === 7 && <div className="coord-file">{String.fromCharCode(65 + (isFlipped ? 6 - visualC : visualC))}</div>}
-
-          {cell && cell.type === 'tower' && (
-            <div className={`tower-container ${animClass === 'damage' ? 'taking-damage' : ''}`} style={{width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
-              <img src={towerImg} alt="tower" style={{width: '70%', height: '70%', objectFit: 'contain'}} />
-              <div className="tower-hp">{cell.hp}/{cell.maxHp}</div>
-            </div>
-          )}
-          {cell && cell.type === 'unit' && (
-            <div className={`unit-container ${isSelected ? 'selected-attacker' : ''} ${animClass === 'spawn' ? 'just-spawned' : ''} ${animClass === 'move' ? 'moving' : ''} ${animClass === 'attack' ? 'attacking' : ''} ${animClass === 'damage' ? 'taking-damage' : ''} ${isDestroyed ? 'unit-destroyed' : ''}`} style={{width: '80%', height: '80%', background: cell.owner === socket.id ? '#3498db' : '#e74c3c', borderRadius: '50%', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
-              <img src={getImageForCard(cell.id)} alt="unit" style={{width: '70%', height: '70%', objectFit: 'contain'}} />
-              <div className="unit-hp-bar">
-                <div className={`unit-hp-fill ${getHPClass(cell.hp, cell.maxHp)}`} style={{width: `${(cell.hp / cell.maxHp) * 100}%`}}></div>
-              </div>
-              <div className="unit-status">
-                {cell.hasMoved && <div className="status-icon status-moved">M</div>}
-                {cell.hasAttacked && <div className="status-icon status-attacked">A</div>}
-              </div>
-            </div>
-          )}
-        </div>
-      );
-  };
-
   const handlePromptResponse = (response) => {
       if (response === "Atacar") {
           setPrompt(null);
@@ -569,101 +494,16 @@ const GameScreen = ({ gameData }) => {
 
   return (
     <div className="game-screen-layout">
-      {prompt && (
-        <div className="prompt-overlay">
-            <div className="prompt-box">
-                <p>{prompt.message}</p>
-                <div className="prompt-buttons">
-                    <button onClick={() => handlePromptResponse("Atacar")}>⚔️ Atacar</button>
-                    <button onClick={() => handlePromptResponse("Terminar Turno")}>🛑 Terminar Turno</button>
-                </div>
-            </div>
-        </div>
-      )}
-      {gameOverData && (
-        <div className="game-over-overlay">
-          <div className="game-over-content">
-            <h1 className={gameOverData.result === 'victory' ? 'victory-text' : 'defeat-text'}>
-              {gameOverData.result === 'victory' ? '¡VICTORIA!' : 'DERROTA'}
-            </h1>
-            <p className="game-over-reason">{gameOverData.reason}</p>
-            <button className="return-menu-btn" onClick={() => window.location.reload()}>
-              Volver al Menú
-            </button>
-          </div>
-        </div>
-      )}
-
-      {attackCinematic && (
-        <div className="attack-cinematic-overlay">
-          <div className="cinematic-content">
-            <div className={`cinematic-card attacker ${attackCinematic.attackerOwner === socket.id ? 'ally' : 'enemy'}`}>
-              <img src={getImageForCard(attackCinematic.attackerId)} alt="Attacker" />
-              <div className="cinematic-label">ATACANTE</div>
-            </div>
-            
-            <div className="cinematic-vs">VS</div>
-            
-            <div className={`cinematic-card target ${attackCinematic.targetOwner === socket.id ? 'ally' : 'enemy'} ${attackCinematic.isKill ? 'destroyed' : 'hit'}`}>
-              <img src={attackCinematic.targetId === 'tower' ? (attackCinematic.targetOwner === socket.id ? towerGoodImg : towerBadImg) : getImageForCard(attackCinematic.targetId)} alt="Target" />
-              <div className="cinematic-label">DEFENSOR</div>
-              <div className="cinematic-damage">-{attackCinematic.damage}</div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Ability Cinematic Overlay */}
-      {abilityCinematic && (() => {
-        const casterUnit = board[abilityCinematic.unitPos.r][abilityCinematic.unitPos.c];
-        const casterCard = casterUnit ? getCardData(casterUnit.id) : null;
-        
-        return (
-          <div className="ability-cinematic-overlay">
-            <div className="ability-cinematic-content">
-              {/* Caster Card */}
-              <div className="ability-caster-card">
-                <img src={casterCard ? getImageForCard(casterCard.id) : knightPng} alt="Caster" />
-                <div className="ability-caster-label">LANZANDO</div>
-              </div>
-              
-              {/* Ability Name */}
-              <div className="ability-name-display">
-                <div className="ability-name-text">{abilityCinematic.abilityName}</div>
-                <div className="ability-effect-icon">
-                  {abilityCinematic.effects && abilityCinematic.effects.length > 0 && (
-                    <>
-                      {abilityCinematic.effects.some(e => e.effects?.some(ef => ef.type === 'damage')) && '💥'}
-                      {abilityCinematic.effects.some(e => e.effects?.some(ef => ef.type === 'heal')) && '💚'}
-                      {abilityCinematic.effects.some(e => e.effects?.some(ef => ef.type === 'buff')) && '📈'}
-                      {abilityCinematic.effects.some(e => e.effects?.some(ef => ef.type === 'debuff')) && '📉'}
-                    </>
-                  )}
-                </div>
-              </div>
-              
-              {/* Effects Summary */}
-              {abilityCinematic.effects && abilityCinematic.effects.length > 0 && (
-                <div className="ability-effects-summary">
-                  {abilityCinematic.effects.map((effect, idx) => (
-                    <div key={idx} className="ability-effect-item">
-                      {effect.effects.map((e, i) => (
-                        <div key={i} className="ability-effect-detail">
-                          {e.type === 'damage' && `💥 -${e.value}`}
-                          {e.type === 'heal' && `💚 +${e.value}`}
-                          {e.type === 'buff' && '📈 Buff'}
-                          {e.type === 'debuff' && '📉 Debuff'}
-                          {e.type === 'kill' && '💀 Eliminado'}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })()}
+      <GameOverlays 
+        prompt={prompt}
+        gameOverData={gameOverData}
+        attackCinematic={attackCinematic}
+        abilityCinematic={abilityCinematic}
+        handlePromptResponse={handlePromptResponse}
+        socketId={socket.id}
+        board={board}
+        getCardData={getCardData}
+      />
 
       {/* Left Panel - Action History */}
       <div className="game-left-panel">
@@ -683,13 +523,18 @@ const GameScreen = ({ gameData }) => {
             </div>
         </div>
 
-        <div className="game-board-container">
-            <div className="game-board">
-            {Array(8).fill(0).map((_, r) => 
-                Array(7).fill(0).map((_, c) => renderCell(r, c))
-            )}
-            </div>
-        </div>
+        <GameBoard 
+          board={board}
+          validCells={validCells}
+          animatingCells={animatingCells}
+          destroyedCell={destroyedCell}
+          selectedUnitPos={selectedUnitPos}
+          handleBoardClickVisual={handleBoardClickVisual}
+          isFlipped={isFlipped}
+          player1Id={gameState.player1Id}
+          socketId={socket.id}
+          toLogical={toLogical}
+        />
 
         <div className={`game-bottom-bar ${turn ? 'your-turn' : ''}`}>
             <div className="player-stats">
@@ -702,79 +547,28 @@ const GameScreen = ({ gameData }) => {
                 </div>
             )}
             </div>
-            <div className="player-hand">
-            {hand && hand.map((cardId, index) => {
-                const card = getCardData(cardId);
-                return (
-                <div key={index} className={`hand-card ${selectedCardIndex === index ? 'selected' : ''}`} onClick={() => handleCardClick(index)}>
-                    <div className="hand-card-cost">{card ? card.cost : '?'}</div>
-                    <img src={getImageForCard(cardId)} alt={card ? card.name : 'Card'} />
-                </div>
-                );
-            })}
-            </div>
+            
+            <GameHand 
+              hand={hand}
+              selectedCardIndex={selectedCardIndex}
+              handleCardClick={handleCardClick}
+              getCardData={getCardData}
+            />
         </div>
         
         <button className="end-turn-btn" onClick={handleEndTurn} disabled={!turn}>Terminar Turno</button>
       </div>
 
-      <div className="game-side-panel">
-        <h3 className="panel-title">Detalles</h3>
-        {selectedCardData ? (
-            <div className="card-details">
-                <div className="detail-image-container">
-                    <img src={getImageForCard(selectedCardData.id)} alt={selectedCardData.name} />
-                </div>
-                <h4>{selectedCardData.name}</h4>
-                <p className="detail-desc">{selectedCardData.description}</p>
-                
-                {/* Ability Section - Now FIRST */}
-                {selectedUnitPos && board[selectedUnitPos.r][selectedUnitPos.c]?.abilities && (
-                  <div className="ability-list">
-                    <div className="ability-buttons-title">✨ Habilidades</div>
-                    {board[selectedUnitPos.r][selectedUnitPos.c].abilities.map((ability, index) => (
-                      <div key={index} className="ability-item">
-                        <div className="ability-item-header">
-                          <span className="ability-item-name">{ability.name}</span>
-                          <span className="ability-item-type">
-                            {ability.abilityType === 'active' ? `⚡${ability.energyCost}` : '🔄 Pasiva'}
-                          </span>
-                        </div>
-                        <div className="ability-item-desc">
-                          {getAbilityDescription(ability)}
-                        </div>
-                        {/* Only show button if it's MY unit and it's active */}
-                        {ability.abilityType === 'active' && gameState.turn && selectedUnitPos && board[selectedUnitPos.r][selectedUnitPos.c]?.owner === socket.id && (
-                          <button 
-                            className="ability-btn"
-                            onClick={() => handleAbilityClick(index)}
-                            disabled={!gameState.turn || board[selectedUnitPos.r][selectedUnitPos.c].abilityUsedThisTurn || energy < (ability.energyCost || 0)}
-                          >
-                            <span className="ability-btn-name">Usar {ability.name}</span>
-                            <span className="ability-btn-cost">⚡ {ability.energyCost}</span>
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                {/* Stats Section - Now SECOND */}
-                <div className="detail-stats">
-                    <div className="stat-row"><span>⚔️ Ataque:</span> <span>{selectedCardData.attack}</span></div>
-                    <div className="stat-row"><span>🛡️ Defensa:</span> <span>{selectedCardData.defense}</span></div>
-                    <div className="stat-row"><span>❤️ Vida:</span> <span>{selectedUnitPos ? `${board[selectedUnitPos.r][selectedUnitPos.c].hp}/${selectedCardData.maxHp}` : selectedCardData.maxHp}</span></div>
-                    <div className="stat-row"><span>🎯 Rango:</span> <span>{selectedCardData.range}</span></div>
-                    <div className="stat-row"><span>👟 Velocidad:</span> <span>{selectedCardData.speed}</span></div>
-                    <div className="stat-row"><span>⚡ Costo:</span> <span>{selectedCardData.cost}</span></div>
-                </div>
-            </div>
-        ) : (
-            <div className="empty-details">
-                <p>Selecciona una carta o unidad para ver sus detalles</p>
-            </div>
-        )}
-      </div>
+      <GameSidePanel 
+        selectedCardData={selectedCardData}
+        selectedUnitPos={selectedUnitPos}
+        board={board}
+        gameState={gameState}
+        socketId={socket.id}
+        energy={energy}
+        handleAbilityClick={handleAbilityClick}
+        getAbilityDescription={getAbilityDescription}
+      />
     </div>
   );
 };
