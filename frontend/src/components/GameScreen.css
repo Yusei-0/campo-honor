@@ -1097,3 +1097,15 @@ button, .hand-card, .board-cell, a {
   70% { transform: scale(1.1); }
   100% { transform: scale(1); opacity: 1; }
 }
+
+/* Left Panel for Action History */
+.game-left-panel {
+  width: 280px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  border-right: 2px solid var(--primary-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10;
+}

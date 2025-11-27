@@ -234,6 +234,18 @@ module.exports = (io, socket) => {
     };
 
     console.log("[SUMMON] Unit summoned, switching turn");
+
+    // Emit summon event for history
+    const summonData = {
+      owner: socket.id,
+      cardId: cardId,
+      pos: target,
+    };
+    io.to(game.player1.socket.id).emit("unit_summoned", summonData);
+    if (game.player2.socket && game.player2.socket.emit) {
+      io.to(game.player2.socket.id).emit("unit_summoned", summonData);
+    }
+
     switchTurn(game);
     emitGameUpdate(game);
   });
@@ -333,6 +345,18 @@ module.exports = (io, socket) => {
         console.log("[MOVE] Melee unit moved, no targets, turn ends");
         switchTurn(game);
       }
+    }
+
+    // Emit move event for history
+    const moveData = {
+      owner: socket.id,
+      unitId: unit.id,
+      from: from,
+      to: to,
+    };
+    io.to(game.player1.socket.id).emit("unit_moved", moveData);
+    if (game.player2.socket && game.player2.socket.emit) {
+      io.to(game.player2.socket.id).emit("unit_moved", moveData);
     }
 
     emitGameUpdate(game);

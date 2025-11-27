@@ -12,6 +12,7 @@ import shieldPng from '../../cards/card_shield.png';
 import lancerPng from '../../cards/card_lancer.png';
 import catapultPng from '../../cards/card_catapult.png';
 import healerPng from '../../cards/card_healer.png';
+import ActionHistory from './ActionHistory';
 
 const getImageForCard = (cardId) => {
   if (!cardId) return knightPng;
@@ -50,6 +51,7 @@ const GameScreen = ({ gameData }) => {
   const [prompt, setPrompt] = useState(null);
   const [selectedAbility, setSelectedAbility] = useState(null); // {unitPos, abilityIndex, ability}
   const [abilityCinematic, setAbilityCinematic] = useState(null);
+  const [actionHistory, setActionHistory] = useState([]);
 
   useEffect(() => {
     if (!socket) return;
@@ -89,6 +91,17 @@ const GameScreen = ({ gameData }) => {
       setAttackCinematic(data);
       playSound('attack'); 
       
+      // Track attack action
+      const attackerCard = getCardData(data.attackerId);
+      const isMe = data.attackerOwner === socket.id;
+      addActionToHistory({
+        type: 'attack',
+        player: isMe ? 'Tú' : opponent,
+        isMe: isMe,
+        attacker: attackerCard?.name || 'Unidad',
+        damage: data.damage
+      });
+      
       if (data.isKill) {
         setTimeout(() => {
           setDestroyedCell(data.to); 
@@ -110,9 +123,54 @@ const GameScreen = ({ gameData }) => {
       setAbilityCinematic(data);
       playSound('attack'); // Reuse attack sound for now
       
+      // Track ability action
+      const casterUnit = board[data.unitPos.r][data.unitPos.c];
+      const casterCard = casterUnit ? getCardData(casterUnit.id) : null;
+      const ability = casterUnit?.abilities[data.abilityIndex];
+      const isMe = data.unitPos && board[data.unitPos.r][data.unitPos.c]?.owner === socket.id;
+      
+      addActionToHistory({
+        type: 'ability',
+        player: isMe ? 'Tú' : opponent,
+        isMe: isMe,
+        cardName: casterCard?.name || 'Unidad',
+        abilityName: ability?.name || 'Habilidad'
+      });
+      
       setTimeout(() => {
         setAbilityCinematic(null);
       }, 3000);
+    });
+
+    socket.on('unit_summoned', (data) => {
+      const card = getCardData(data.cardId);
+      const visual = toVisual(data.pos.r, data.pos.c);
+      const isMe = data.owner === socket.id;
+      
+      addActionToHistory({
+        type: 'summon',
+        player: isMe ? 'Tú' : opponent,
+        isMe: isMe,
+        cardName: card?.name || 'Unidad',
+        position: `${String.fromCharCode(65 + visual.c)}${8 - visual.r}`
+      });
+    });
+
+    socket.on('unit_moved', (data) => {
+      const unit = board[data.from.r][data.from.c]; // Might be null if already moved in state, but we have unitId
+      const card = getCardData(data.unitId); // We need to pass unitId in event or look it up
+      const visualFrom = toVisual(data.from.r, data.from.c);
+      const visualTo = toVisual(data.to.r, data.to.c);
+      const isMe = data.owner === socket.id;
+
+      addActionToHistory({
+        type: 'move',
+        player: isMe ? 'Tú' : opponent,
+        isMe: isMe,
+        cardName: card?.name || 'Unidad',
+        from: `${String.fromCharCode(65 + visualFrom.c)}${8 - visualFrom.r}`,
+        to: `${String.fromCharCode(65 + visualTo.c)}${8 - visualTo.r}`
+      });
     });
 
     return () => {
@@ -122,6 +180,8 @@ const GameScreen = ({ gameData }) => {
       socket.off('attack_result');
       socket.off('game_over');
       socket.off('ability_result');
+      socket.off('unit_summoned');
+      socket.off('unit_moved');
     };
   }, [socket, gameState.turn, attackCinematic, playSound]);
 
@@ -137,6 +197,16 @@ const GameScreen = ({ gameData }) => {
       setMode('summon');
       playSound('click');
     }
+  };
+
+  const addActionToHistory = (action) => {
+    const timestamp = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const newAction = {
+      id: Date.now() + Math.random(),
+      timestamp,
+      ...action
+    };
+    setActionHistory(prev => [newAction, ...prev].slice(0, 30)); // Keep last 30 actions
   };
 
   const getAbilityDescription = (ability) => {
@@ -594,6 +664,11 @@ const GameScreen = ({ gameData }) => {
           </div>
         );
       })()}
+
+      {/* Left Panel - Action History */}
+      <div className="game-left-panel">
+        <ActionHistory actions={actionHistory} />
+      </div>
 
       <div className="game-main-area">
         {showTurnBanner && <div className="turn-banner">{turnBannerText}</div>}
