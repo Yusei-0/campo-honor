@@ -945,26 +945,27 @@ button, .hand-card, .board-cell, a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  transform: scale(1.1);
+  gap: 1rem;
+  transform: scale(0.9);
 }
 
 .ability-caster-card {
-  width: 280px;
-  height: 400px;
+  width: 220px;
+  height: 320px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: 5px solid #f1c40f;
-  border-radius: 20px;
+  border: 4px solid #f1c40f;
+  border-radius: 16px;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 50px rgba(155, 89, 182, 0.8), 0 0 100px rgba(241, 196, 15, 0.5);
+  box-shadow: 0 0 40px rgba(155, 89, 182, 0.8), 0 0 80px rgba(241, 196, 15, 0.5);
   overflow: hidden;
   animation: cardPulse 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* ... (pseudo-element remains same, skipping for brevity if not changing) ... */
 .ability-caster-card::before {
   content: '';
   position: absolute;
@@ -977,40 +978,40 @@ button, .hand-card, .board-cell, a {
 }
 
 .ability-caster-card img {
-  width: 85%;
-  height: 85%;
+  width: 80%;
+  height: 80%;
   object-fit: contain;
-  filter: drop-shadow(0 15px 20px rgba(0,0,0,0.7));
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.7));
   z-index: 1;
   animation: floatCaster 2s ease-in-out infinite;
 }
 
 .ability-caster-label {
   position: absolute;
-  top: 15px;
+  top: 10px;
   font-family: 'Luckiest Guy', cursive;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   color: #f1c40f;
-  text-shadow: 3px 3px 0 #000, 0 0 20px #f1c40f;
+  text-shadow: 2px 2px 0 #000, 0 0 15px #f1c40f;
   z-index: 2;
   animation: pulse 1s ease-in-out infinite;
 }
 
 .ability-name-display {
   background: linear-gradient(to right, rgba(155, 89, 182, 0.9), rgba(142, 68, 173, 0.9));
-  padding: 1.5rem 3rem;
-  border-radius: 15px;
+  padding: 1rem 2rem;
+  border-radius: 12px;
   border: 3px solid #f1c40f;
-  box-shadow: 0 0 30px rgba(241, 196, 15, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 25px rgba(241, 196, 15, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.1);
   animation: nameSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s backwards;
   text-align: center;
 }
 
 .ability-name-text {
   font-family: 'Luckiest Guy', cursive;
-  font-size: 3rem;
+  font-size: 2.2rem;
   color: #fff;
-  text-shadow: 3px 3px 0 #000, 0 0 30px #f1c40f;
+  text-shadow: 2px 2px 0 #000, 0 0 25px #f1c40f;
   animation: textGlow 1.5s ease-in-out infinite;
 }
 
