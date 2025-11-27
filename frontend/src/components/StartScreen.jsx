@@ -1,10 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import './StartScreen.css';
 import { useSound } from '../context/SoundContext';
+import { useSocket } from '../context/SocketContext';
 
 const StartScreen = ({ onNavigate }) => {
   const [particles, setParticles] = useState([]);
+  const [playerCount, setPlayerCount] = useState(0);
   const { playSound } = useSound();
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("playerCount", (count) => {
+        setPlayerCount(count);
+      });
+      
+      // Request initial count because we might have missed the connection event
+      // while the ServerAwakener was loading
+      socket.emit("requestPlayerCount");
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("playerCount");
+      }
+    };
+  }, [socket]);
 
   useEffect(() => {
     // Generate random particles
@@ -77,6 +98,10 @@ const StartScreen = ({ onNavigate }) => {
 
       <div className="title-container">
         <h1 className="game-title">Campo<br/>de Honor</h1>
+        <div className="player-count-badge">
+          <span className="status-dot"></span>
+          {playerCount} {playerCount === 1 ? 'Jugador' : 'Jugadores'} Online
+        </div>
       </div>
 
       <div className="menu-options">

@@ -36,12 +36,25 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
+  // Broadcast player count
+  const broadcastCount = () => {
+    const count = io.of("/").sockets.size;
+    io.emit("playerCount", count);
+  };
+
+  broadcastCount();
+
+  socket.on("requestPlayerCount", () => {
+    broadcastCount();
+  });
+
   // Register Handlers
   matchmakingHandler(io, socket);
   gameHandler(io, socket);
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+    broadcastCount();
   });
 });
 

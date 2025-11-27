@@ -240,3 +240,28 @@ body {
   z-index: 0;
   fill: var(--primary-color);
 }
+
+.player-count-badge {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #bdc3c7;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 1s ease-out;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #2ecc71;
+  border-radius: 50%;
+  box-shadow: 0 0 5px #2ecc71;
+  animation: pulse 2s infinite;
+}
